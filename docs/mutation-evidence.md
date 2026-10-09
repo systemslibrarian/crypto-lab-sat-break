@@ -4,14 +4,14 @@ Each owner passed before mutation. Each concrete patch built successfully, chang
 
 | Mutation | Mutated asset SHA-256 prefix | Owner failed |
 | --- | --- | --- |
-| Flip an S-box output literal | `1e118b79c11b` | Yes |
-| Use separate master-key variables for later pairs | `f9210e4c91d8` | Yes |
-| Hard-wire direct verification to accept | `eae7954fdede` | Yes |
-| Check observed pairs instead of withheld pairs | `98cf7f746f89` | Yes |
-| Drop the master-key blocking clause | `f4a6bb53748f` | Yes |
-| Treat UNKNOWN as UNSAT | `c2f78b0d93db` | Yes |
-| Claim original key after withheld success | `69bc2745e615` | Yes |
-| Delete the visible equivalence limitation | `709d8987498f` | Yes |
-| Accept a result from a retired job | `99b5b6920cb2` | Yes |
+| Flip an S-box output literal | `0e6d7e172b49` | Yes |
+| Use separate master-key variables for later pairs | `dac53088bd59` | Yes |
+| Hard-wire direct verification to accept | `bc43b94f7034` | Yes |
+| Check observed pairs instead of withheld pairs | `1ce7238d50ed` | Yes |
+| Drop the master-key blocking clause | `faacd4cd25f9` | Yes |
+| Treat UNKNOWN as UNSAT | `22dec8639203` | Yes |
+| Claim original key after withheld success | `5d5901a975a7` | Yes |
+| Delete the visible equivalence limitation | `f22d3c4ced81` | Yes |
+| Accept a result from a retired job | `d159f1346f80` | Yes |
 
-Baseline: Tests  45 passed (45); 10 passed (13.3s).
+Baseline: Tests  45 passed (45); 11 passed (14.2s).

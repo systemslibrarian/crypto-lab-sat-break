@@ -60,6 +60,7 @@ const say = (id: string, value: string): void => { byId(id).textContent = value;
 const hex = (number: number, width = 2): string => number.toString(16).toUpperCase().padStart(width, '0');
 const keyWord = (count: number): string => count === 1 ? 'key' : 'keys';
 const partialCount = (count: number): string => count === 0 ? 'No key found yet' : `At least ${count} ${keyWord(count)} found`;
+const formatMs = (ms: number): string => ms < 0.05 ? 'below timer resolution' : `${ms.toFixed(1)} ms`;
 const parseHex = (value: string, width: number): number => {
   if (!new RegExp(`^[0-9a-fA-F]{1,${width}}$`).test(value.trim())) throw new Error(`Enter 1–${width} hexadecimal digits`);
   return parseInt(value.trim(), 16);
@@ -234,7 +235,7 @@ function startSat(mode: 'first' | 'next' | 'enumerate' | 'check'): void {
       if (watchdog !== undefined) clearTimeout(watchdog);
       watchdog = undefined; satWorker?.terminate(); satWorker = undefined;
       const elapsed = performance.now() - started;
-      say('timings', `CNF encoding ${encodingMs.toFixed(1)} ms before query · worker startup + query ${elapsed.toFixed(1)} ms · WASM load ${message.loadMs.toFixed(1)} · clause loading ${message.clauseMs.toFixed(1)} · solving ${message.solveMs.toFixed(1)} · model extraction ${message.modelMs.toFixed(1)} · direct observed-pair check ${directCheckMs.toFixed(1)} ms.`);
+      say('timings', `CNF encoding ${formatMs(encodingMs)} before query · worker startup + query ${formatMs(elapsed)} · WASM load ${formatMs(message.loadMs)} · clause loading ${formatMs(message.clauseMs)} · solving ${formatMs(message.solveMs)} · model extraction ${formatMs(message.modelMs)} · direct observed-pair check ${formatMs(directCheckMs)}.`);
       if (mode === 'check') {
         say('solve-status', message.status === 'UNSAT' ? `Supplied key ${hex(candidate!,4)} cannot fit these observed pairs (UNSAT).` : message.status === 'CAP' ? `Supplied key ${hex(candidate!,4)} is SAT for the observed pairs; direct checks follow below.` : `Candidate check ${message.status}; no success claim.`);
       } else if (message.status === 'UNSAT') {
@@ -260,7 +261,7 @@ function runExhaustive(): void {
     worker.terminate(); exhaustiveWorker = undefined;
     if (event.data.kind === 'error') { say('exhaustive-status', event.data.error); return; }
     exhaustiveKeys = event.data.keys;
-    say('exhaustive-status', `${exhaustiveKeys!.length} keys fit the observed pairs; full scan ${event.data.elapsedMs.toFixed(1)} ms.`);
+    say('exhaustive-status', `${exhaustiveKeys!.length} keys fit the observed pairs; full scan ${formatMs(event.data.elapsedMs)}.`);
     renderSetComparison();
   };
   worker.postMessage({ jobId, pairs: evidence.observed, rounds: experiment.rounds, firstOnly: false });
@@ -342,8 +343,7 @@ async function benchmark(): Promise<void> {
   };
   try {
     await trials('sat'); await trials('exhaustive');
-    const display = (ms:number) => ms < .05 ? 'below timer resolution' : `${ms.toFixed(1)} ms`;
-    const spread = (v:number[]) => `${display(Math.min(...v))}–${display(Math.max(...v))}`;
+    const spread = (v:number[]) => `${formatMs(Math.min(...v))}–${formatMs(Math.max(...v))}`;
     say('benchmark-status', `Five measured repetitions per method completed for ${complete?'complete-set':'first-match'} task.`);
     const stageRows: [string, number][] = [
       ['CNF encoding, once before trials', encodingMs],
@@ -354,7 +354,7 @@ async function benchmark(): Promise<void> {
       ['SAT: direct observed-pair verification', median(satStages.verify)],
       ['Exhaustive: key scan loop', median(exScan)],
     ];
-    byId('benchmark-output').innerHTML = `<div class="scroll-region" role="region" aria-label="Benchmark total times" tabindex="0"><table><thead><tr><th scope="col">Method</th><th scope="col">Median total elapsed</th><th scope="col">Range</th><th scope="col">Samples</th></tr></thead><tbody><tr><td>CaDiCaL WASM</td><td>${display(median(satSamples))}</td><td>${spread(satSamples)}</td><td>5</td></tr><tr><td>Exhaustive worker</td><td>${display(median(exSamples))}</td><td>${spread(exSamples)}</td><td>5</td></tr></tbody></table></div><details class="benchmark-breakdown"><summary>See measured stages</summary><div class="scroll-region" role="region" aria-label="Benchmark stage times" tabindex="0"><table><thead><tr><th scope="col">Stage</th><th scope="col">Median</th></tr></thead><tbody>${stageRows.map(([name,ms])=>`<tr><td>${name}</td><td>${display(ms)}</td></tr>`).join('')}</tbody></table></div><p class="small">Encoding happens once when the evidence changes and is excluded from trial totals. Stage medians are measured separately; messaging and scheduling mean they need not add to a total median.</p></details><p id="benchmark-meta" class="small"></p>`;
+    byId('benchmark-output').innerHTML = `<div class="scroll-region" role="region" aria-label="Benchmark total times" tabindex="0"><table><thead><tr><th scope="col">Method</th><th scope="col">Median total elapsed</th><th scope="col">Range</th><th scope="col">Samples</th></tr></thead><tbody><tr><td>CaDiCaL WASM</td><td>${formatMs(median(satSamples))}</td><td>${spread(satSamples)}</td><td>5</td></tr><tr><td>Exhaustive worker</td><td>${formatMs(median(exSamples))}</td><td>${spread(exSamples)}</td><td>5</td></tr></tbody></table></div><details class="benchmark-breakdown"><summary>See measured stages</summary><div class="scroll-region" role="region" aria-label="Benchmark stage times" tabindex="0"><table><thead><tr><th scope="col">Stage</th><th scope="col">Median</th></tr></thead><tbody>${stageRows.map(([name,ms])=>`<tr><td>${name}</td><td>${formatMs(ms)}</td></tr>`).join('')}</tbody></table></div><p class="small">Encoding happens once when the evidence changes and is excluded from trial totals. Stage medians are measured separately; messaging and scheduling mean they need not add to a total median.</p></details><p id="benchmark-meta" class="small"></p>`;
     say('benchmark-meta', `${navigator.userAgent} · CaDiCaL c607304 · ${experiment.rounds} rounds · ${observedCount} pairs · ${fixture}. Trial totals include fresh worker startup, the query, and direct observed-pair verification of SAT candidates. ${backgrounded ? 'Background tab detected; timings may be distorted.' : 'Tab remained visible during measurement.'}`);
   } catch (error) { if (jobId === currentJob) say('benchmark-status', `Benchmark incomplete: ${error instanceof Error ? error.message : String(error)}`); }
   finally { document.removeEventListener('visibilitychange', markBackground); }
@@ -377,7 +377,10 @@ byId('solve-next').addEventListener('click',()=>startSat('next'));
 byId('enumerate').addEventListener('click',()=>startSat('enumerate'));
 byId('check-candidate').addEventListener('click',()=>startSat('check'));
 byId('stop').addEventListener('click',()=>{
-  if (satWorker || cancelBenchmark) retire(`Stopped. ${partialCount(foundKeys.length)}; enumeration incomplete.`);
+  if (cancelBenchmark) retire(satComplete
+    ? `Benchmark stopped. SAT enumeration remains complete: ${foundKeys.length} consistent master ${keyWord(foundKeys.length)}.`
+    : `Benchmark stopped. ${partialCount(foundKeys.length)}; SAT enumeration incomplete.`);
+  else if (satWorker) retire(`Stopped. ${partialCount(foundKeys.length)}; enumeration incomplete.`);
   else say('solve-status', satComplete ? `No query running. Enumeration complete: ${foundKeys.length} consistent master ${keyWord(foundKeys.length)}.` : `No query running. ${partialCount(foundKeys.length)}; enumeration incomplete.`);
 });
 byId('run-exhaustive').addEventListener('click',runExhaustive);

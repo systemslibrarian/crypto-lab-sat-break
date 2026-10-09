@@ -172,3 +172,16 @@ test('Stop cancels an active benchmark and a fresh SAT run still works', async (
   await page.getByRole('button', { name: 'Find a key', exact: true }).click();
   await expect(page.locator('#solve-status')).toContainText('At least 1 key found', { timeout: 45_000 });
 });
+
+test('stopping a benchmark preserves a proven complete SAT enumeration', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Enumerate up to 512 more' }).click();
+  await expect(page.locator('#solve-status')).toContainText('all 262 consistent master keys found', { timeout: 60_000 });
+  await page.getByLabel('Task').selectOption('complete');
+  await page.getByRole('button', { name: 'Run five-trial benchmark' }).click();
+  await expect(page.locator('#benchmark-status')).toContainText(/SAT (warmup|trial)/);
+  await page.getByRole('button', { name: 'Stop', exact: true }).click();
+  await expect(page.locator('#benchmark-status')).toContainText('Benchmark stopped; measurements incomplete.');
+  await expect(page.locator('#solve-status')).toContainText('SAT enumeration remains complete: 262 consistent master keys.');
+  await expect(page.locator('#sat-count')).toHaveText('262');
+});
