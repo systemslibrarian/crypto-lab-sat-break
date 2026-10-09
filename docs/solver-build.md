@@ -16,11 +16,13 @@ From the repository root, run `bash solver/build.sh`. It checks out the pinned C
 The checked-in artifacts produced in this environment have SHA-256 checksums:
 
 ```text
-2f070595a1bc8877effc74012a440588bf277c5d7a5a952cc  public/cadical.mjs
+2f070595a1bc8877effc74012a440588bf277c5b1ef0830da192c5d7a5a952cc  public/cadical.mjs
 459622b6fdf1e2d0eaac2189274a0bd96b9ef362f30724ab6e0c4f461addfff5  public/cadical.wasm
 ```
 
 Builds with a different Emscripten revision may produce different bytes. `shasum -a 256 public/cadical.mjs public/cadical.wasm` records the output of a new build. The generated `.mjs` is about 66 KiB and `.wasm` about 879 KiB in this build.
+
+`npm test` checks that both documented digests contain exactly 64 hexadecimal characters and match the checked-in asset bytes. Update these checksums when intentionally rebuilding the assets. This gate checks documentation consistency; it does not establish compiler or binary provenance.
 
 ## Adapter contract
 
