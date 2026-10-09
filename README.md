@@ -22,7 +22,7 @@ Use this lab to study bit-level constraint encoding, model verification, evidenc
 
 ## Live Demo
 
-The GitHub Pages destination is [SAT Break](https://systemslibrarian.github.io/crypto-lab-sat-break/). Deployment requires this repository's first commit, a Pages configuration using GitHub Actions, and a passing gate; the URL should not be treated as verified until those steps finish.
+The deployed lab is [SAT Break](https://systemslibrarian.github.io/crypto-lab-sat-break/). The GitHub Actions gate builds, tests, and publishes it to GitHub Pages.
 
 ## What Can Go Wrong
 
@@ -34,7 +34,7 @@ The GitHub Pages destination is [SAT Break](https://systemslibrarian.github.io/c
 
 ## Real-World Usage
 
-SAT encodings are used to analyze precisely specified constraints, including cryptographic problems. This lab shows the mechanics on a deliberately exhaustive teaching target. Its plain CNF build does not include native XOR constraints or Gaussian elimination, and it makes no performance prediction for larger ciphers. See the [CaDiCaL project](https://github.com/arminbiere/cadical) and the references in the [build brief](BRIEF-sat-break-revised.md).
+SAT encodings are used to analyze precisely specified constraints, including cryptographic problems. This lab shows the mechanics on a deliberately exhaustive teaching target. Its plain CNF build does not include native XOR constraints or Gaussian elimination, and it makes no performance prediction for larger ciphers. See the [CaDiCaL project](https://github.com/arminbiere/cadical) and [solver provenance](docs/solver-build.md).
 
 ## How to Run Locally
 
