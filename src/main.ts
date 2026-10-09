@@ -19,26 +19,32 @@ app.innerHTML = `
   </header>
   <nav class="chapter-nav" aria-label="Lab steps"><a href="#experiment">01 Experiment</a><a href="#encoding">02 Encode</a><a href="#solve">03 Solve</a><a href="#evidence">04 Verify</a><a href="#measure">05 Measure</a></nav>
   <section class="intro panel"><h2>What a SAT answer means</h2><p>A <strong>variable</strong> is one Boolean wire. A <strong>literal</strong> is a wire or its negation. A <strong>clause</strong> is an OR of literals; <strong>CNF</strong> is an AND of clauses. <strong>SAT</strong> means an assignment satisfies them all. <strong>UNSAT</strong> means no assignment does.</p><p class="scope">This is a teaching cipher with an 8-bit block and a 16-bit key. Exhaustive search is practical at this size. These results do not establish a practical attack on AES or another modern cipher.</p></section>
+  <aside class="challenge panel" aria-labelledby="challenge-title"><span class="step">A SHORT PATH THROUGH THE LAB</span><h2 id="challenge-title">Can one message identify a key?</h2><ol>
+    <li><strong>Count:</strong> With the four-round example and one observed pair, run the exhaustive scan. Is the original key the only fit?</li>
+    <li><strong>Challenge:</strong> Check the supplied key <code>003F</code> with SAT. Inspect its withheld <code>3A → 33</code> check.</li>
+    <li><strong>Add evidence:</strong> Raise observed pairs to two, then three, and count again. Switch to the one-round fixture and check <code>1034</code>: do all 256 outputs match even though its key bits differ?</li>
+  </ol><details><summary>Reveal the reference results after trying</summary><p>For four rounds, the candidate counts are <strong>262 → 2 → 1</strong>. Key <code>003F</code> fits the first pair but computes <code>26</code> for plaintext <code>3A</code>, where the withheld answer is <code>33</code>. At one round, <code>1034</code> and <code>1234</code> have different bits but the same complete encryption function.</p></details></aside>
   <section id="experiment" class="panel"><div class="section-heading"><span class="step">01 / MEET THE CIPHER</span><h2>Choose the evidence</h2><p>The attack sees plaintext and ciphertext pairs. The original key stays outside the solver.</p></div>
     <div class="controls"><button id="fixture-four" type="button">Four-round example</button><button id="fixture-one" type="button">One-round equivalent keys</button><button id="random" type="button">Fresh random experiment</button></div>
     <div class="controls"><label>Rounds <select id="rounds">${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===4?'selected':''}>${n}</option>`).join('')}</select></label><label>Observed pairs <select id="pair-count">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}">${n}</option>`).join('')}</select></label><button id="add-pair" type="button">Add next observation</button><span id="experiment-kind" class="chip"></span></div>
+    <div class="cipher-map"><h3>What each pair asks the key to explain</h3><ol class="cipher-flow"><li><span>Input</span><strong>Plaintext byte</strong></li><li><span>Each round</span><strong>XOR with K<sub>r</sub></strong></li><li><span>Each round</span><strong>Two 4-bit S-boxes</strong></li><li><span>Between rounds</span><strong>Permute 8 bits</strong></li><li><span>Output</span><strong>XOR with K<sub>R</sub> → ciphertext</strong></li></ol><p>The last round skips the permutation. Every pair shares the same 16-bit master key; K<sub>r</sub> is its rotated 8-bit round key. Adding a pair adds constraints on those same key bits.</p></div>
     <div class="two-col"><div><h3>Observed pairs</h3><table><thead><tr><th scope="col">Plaintext</th><th scope="col">Ciphertext</th></tr></thead><tbody id="observed-rows"></tbody></table></div><div><h3>Withheld checks</h3><p id="withheld-summary"></p><p>Withheld means withheld from the attack worker, not protected from browser developer tools.</p><button id="reveal" type="button">Reveal original key</button><p id="revealed-key" class="key-display"></p></div></div>
     <details class="explorer"><summary>Explore a visible example key and round states</summary><div class="controls"><label>Example key (hex) <input id="trace-key" value="1234" inputmode="text" maxlength="4" pattern="[0-9A-Fa-f]{1,4}"></label><label>Plaintext (hex) <input id="trace-plain" value="00" inputmode="text" maxlength="2" pattern="[0-9A-Fa-f]{1,2}"></label><button id="trace-run" type="button">Show trace</button></div><p id="trace-error" role="status"></p><div id="trace-output" class="scroll-region" role="region" aria-label="Visible example cipher trace" tabindex="0"></div></details>
   </section>
   <section id="encoding" class="panel"><div class="section-heading"><span class="step">02 / TURN OPERATIONS INTO CLAUSES</span><h2>Inspect the actual circuit</h2><p>The same clauses displayed here go to CaDiCaL. The first 16 variables are the master-key bits.</p></div>
     <div class="stats"><div><strong id="variable-count"></strong><span>allocated variables</span></div><div><strong id="clause-count"></strong><span>base clauses</span></div><div><strong id="gate-count"></strong><span>gates to inspect</span></div></div>
     <div class="controls"><label>Operation <select id="gate-select"></select></label><button id="dimacs" type="button">Download base DIMACS</button></div>
-    <p id="gate-wires" class="mono"></p><div class="controls"><label>Proposed input bits <input id="gate-input" type="number" min="0" max="15" value="0"></label><label>Proposed output bits <input id="gate-output" type="number" min="0" max="15" value="0"></label></div><p id="gate-verdict" role="status"></p><div id="gate-clauses" class="scroll-region mono" role="region" aria-label="Actual clauses for selected operation" tabindex="0"></div>
+    <p id="gate-wires" class="mono"></p><p class="small">A negative wire number means NOT that wire. Proposed bits give the values of the listed literals after any NOT; bit 0 is the first input. The clauses below use the same signed literals as the DIMACS download.</p><div class="controls"><label>Proposed input bits <input id="gate-input" type="number" min="0" max="15" value="0"></label><label id="gate-output-label">Proposed output bits <input id="gate-output" type="number" min="0" max="15" value="0"></label></div><p id="gate-explanation" class="gate-explanation"></p><p id="gate-verdict" role="status"></p><div id="gate-clauses" class="scroll-region mono" role="region" aria-label="Actual clauses for selected operation" tabindex="0"></div>
     <details><summary>Why two-input XOR needs four clauses</summary><p>Each clause forbids one invalid assignment to two inputs and one output. A parity constraint over m wires directly encoded without helper variables needs 2<sup>m−1</sup> clauses; chains of two-input XOR gates use a linear number of clauses.</p></details>
   </section>
-  <section id="solve" class="panel"><div class="section-heading"><span class="step">03 / ASK THE SOLVER</span><h2>Find consistent keys</h2><p>CaDiCaL runs locally in a WebAssembly worker. Every returned key is checked by the direct cipher.</p></div>
+  <section id="solve" class="panel"><div class="section-heading"><span class="step">03 / ASK THE SOLVER</span><h2>Find consistent keys</h2><p>CaDiCaL runs locally in a WebAssembly worker. Every returned key is checked by the direct cipher. Each interactive run has a 30-second timeout; enumeration returns at most 512 new keys per click and can be continued.</p></div>
     <div class="controls"><button id="solve-first" type="button" class="primary">Find a key</button><button id="solve-next" type="button">Find another key</button><button id="enumerate" type="button">Enumerate up to 512 more</button><button id="stop" type="button">Stop</button></div>
     <div class="controls"><label>Check a supplied key (hex) <input id="candidate-input" value="003F" inputmode="text" maxlength="4" pattern="[0-9A-Fa-f]{1,4}"></label><button id="check-candidate" type="button">Check supplied candidate with SAT</button></div>
     <p id="solve-status" role="status" class="status">Ready. The formula contains only observed pairs.</p><p id="timings" class="small"></p>
     <div class="two-col"><div><h3>Keys returned by SAT <span id="sat-count">0</span></h3><div class="scroll-region" role="region" aria-label="SAT candidate table" tabindex="0"><table><thead><tr><th scope="col">Key</th><th scope="col">Observed check</th><th scope="col">Inspect</th></tr></thead><tbody id="candidate-rows"></tbody></table></div><div class="controls"><button id="previous-page" type="button">Previous page</button><span id="page-label"></span><button id="next-page" type="button">Next page</button></div></div><div><h3>Independent exhaustive scan</h3><p>Try all 65,536 master keys against exactly the same observed pairs.</p><button id="run-exhaustive" type="button">Count all fitting keys</button><p id="exhaustive-status" role="status">Not run yet.</p><p id="set-comparison"></p></div></div>
   </section>
   <section id="evidence" class="panel"><div class="section-heading"><span class="step">04 / VERIFY THE CLAIM</span><h2>Check a candidate</h2><p id="selected-key">Select a solver candidate to see independent checks.</p></div><div id="verification"></div></section>
-  <section id="measure" class="panel"><div class="section-heading"><span class="step">05 / MEASURE THE TASK</span><h2>Compare like with like</h2><p>Run five fresh SAT trials and five exhaustive trials on the selected public observations. The first-match task and complete-set task are separate.</p></div>
+  <section id="measure" class="panel"><div class="section-heading"><span class="step">05 / MEASURE THE TASK</span><h2>Compare like with like</h2><p>Run five fresh SAT trials and five exhaustive trials on the selected public observations, with a separate warmup for each method and a 30-second timeout per trial. The first-match task and complete-set task are separate.</p></div>
     <div class="controls"><label>Task <select id="benchmark-task"><option value="first">First matching key</option><option value="complete">Complete candidate set</option></select></label><button id="benchmark" type="button">Run five-trial benchmark</button></div><p id="benchmark-status" role="status">Run this explicitly when ready.</p><div id="benchmark-output"></div>
   </section>
   <section class="panel limits"><h2>What this does not claim</h2><p>A satisfying assignment fits the observed pairs. It may fail unseen pairs. Passing sampled unseen checks does not prove original-key identity. Even matching all 256 outputs can leave different master-key bits, as the one-round example shows.</p><p>This lab uses ordinary CNF and a real CDCL solver; it does not use native XOR reasoning, attack a modern cipher, or claim SAT always beats exhaustive search.</p><p>Source and build details are in the repository README and <a href="https://github.com/systemslibrarian/crypto-lab-sat-break/blob/main/docs/solver-build.md">solver provenance</a>.</p></section>
@@ -52,6 +58,8 @@ const byId = <T extends HTMLElement = HTMLElement>(id: string): T => {
 };
 const say = (id: string, value: string): void => { byId(id).textContent = value; };
 const hex = (number: number, width = 2): string => number.toString(16).toUpperCase().padStart(width, '0');
+const keyWord = (count: number): string => count === 1 ? 'key' : 'keys';
+const partialCount = (count: number): string => count === 0 ? 'No key found yet' : `At least ${count} ${keyWord(count)} found`;
 const parseHex = (value: string, width: number): number => {
   if (!new RegExp(`^[0-9a-fA-F]{1,${width}}$`).test(value.trim())) throw new Error(`Enter 1–${width} hexadecimal digits`);
   return parseInt(value.trim(), 16);
@@ -61,6 +69,7 @@ let experiment: Experiment = fourRoundExample();
 let observedCount = 1;
 let evidence = publicEvidence(experiment, observedCount);
 let formula: Formula = encode(evidence.observed, experiment.rounds);
+let encodingMs = 0;
 let foundKeys: number[] = [];
 let satComplete = false;
 let exhaustiveKeys: number[] | undefined;
@@ -86,10 +95,13 @@ function retire(reason: string): void {
 function resetQuery(reason: string): void {
   retire(reason);
   evidence = publicEvidence(experiment, observedCount);
+  const encodeStarted = performance.now();
   formula = encode(evidence.observed, experiment.rounds);
+  encodingMs = performance.now() - encodeStarted;
   foundKeys = []; satComplete = false; exhaustiveKeys = undefined; selected = undefined; pageIndex = 0; revealed = false;
   say('revealed-key', 'Original key is concealed until Reveal.');
   say('exhaustive-status', 'Not run yet.'); say('set-comparison', ''); say('timings', ''); say('benchmark-status', 'Run this explicitly when ready.');
+  byId('benchmark-output').replaceChildren();
   byId<HTMLSelectElement>('rounds').value = String(experiment.rounds);
   byId<HTMLSelectElement>('pair-count').value = String(observedCount);
   byId<HTMLButtonElement>('add-pair').disabled = observedCount >= 8;
@@ -115,9 +127,14 @@ function renderGate(): void {
   const outputMax = gate.kind === 'sbox' ? 15 : 1;
   const inputControl = byId<HTMLInputElement>('gate-input'), outputControl = byId<HTMLInputElement>('gate-output');
   inputControl.max = String(max); outputControl.max = String(outputMax);
-  outputControl.disabled = gate.kind === 'final';
-  const inValue = Math.min(max, Math.max(0, Number(inputControl.value) || 0));
-  const outValue = Math.min(outputMax, Math.max(0, Number(outputControl.value) || 0));
+  byId('gate-output-label').hidden = gate.kind === 'final';
+  const normalize = (control: HTMLInputElement, limit: number): number => {
+    const value = Math.min(limit, Math.max(0, Math.trunc(control.valueAsNumber || 0)));
+    control.value = String(value);
+    return value;
+  };
+  const inValue = normalize(inputControl, max);
+  const outValue = normalize(outputControl, outputMax);
   const assignments = new Map<number, boolean>();
   gate.inputs.forEach((lit, i) => assignments.set(Math.abs(lit), Boolean((inValue >> i) & 1) === (lit > 0)));
   gate.outputs.forEach((lit, i) => assignments.set(Math.abs(lit), Boolean((outValue >> i) & 1) === (lit > 0)));
@@ -128,7 +145,13 @@ function renderGate(): void {
   }));
   const good = evaluations.filter(Boolean).length;
   say('gate-wires', `Inputs: ${gate.inputs.map(lit => `${lit} (${formula.wires[Math.abs(lit)]})`).join(', ')}${gate.outputs.length ? ` · Outputs: ${gate.outputs.join(', ')}` : ''}`);
-  say('gate-verdict', `${good}/${gateClauses.length} actual clauses satisfied by this proposed assignment${good === gateClauses.length ? '.' : '; invalid assignment.'}`);
+  if (gate.kind === 'sbox') say('gate-explanation', `The S-box maps input ${hex(inValue, 1)} to ${hex(weak.table[inValue], 1)}. You proposed output ${hex(outValue, 1)}.`);
+  else {
+    const xor = (inValue & 1) ^ ((inValue >> 1) & 1);
+    if (gate.kind === 'xor') say('gate-explanation', `These input bits XOR to ${xor}. You proposed output ${outValue}.`);
+    else say('gate-explanation', `These bits XOR to ${xor}; the observed ciphertext requires bit ${gate.expected}. The target bit is fixed, so there is no proposed output to change.`);
+  }
+  say('gate-verdict', `${good === gateClauses.length ? 'Valid assignment.' : 'Invalid assignment.'} ${good}/${gateClauses.length} actual clauses satisfied.`);
   byId('gate-clauses').innerHTML = gateClauses.map((clause, i) => `<div class="clause ${evaluations[i] ? 'pass' : 'fail'}"><span>${evaluations[i] ? '✓' : '×'}</span> (${clause.join(' ∨ ')})</div>`).join('');
 }
 
@@ -170,6 +193,7 @@ function renderVerification(): void {
 
 function startSat(mode: 'first' | 'next' | 'enumerate' | 'check'): void {
   retire('Starting SAT query…');
+  say('timings', '');
   const jobId = currentJob;
   let candidate: number | undefined;
   if (mode === 'check') {
@@ -184,9 +208,10 @@ function startSat(mode: 'first' | 'next' | 'enumerate' | 'check'): void {
   const worker = new Worker(new URL('./workers/solve.ts', import.meta.url), { type: 'module' });
   satWorker = worker;
   const started = performance.now();
+  let directCheckMs = 0;
   watchdog = window.setTimeout(() => {
     if (jobId !== currentJob) return;
-    retire(`Timeout after 30 seconds. At least ${foundKeys.length} keys found; enumeration incomplete.`);
+    retire(`Timeout after 30 seconds. ${partialCount(foundKeys.length)}; enumeration incomplete.`);
     renderCandidates();
   }, 30_000);
   worker.onerror = event => { if (jobId === currentJob) { retire(`Solver load or worker error: ${event.message}`); } };
@@ -195,25 +220,28 @@ function startSat(mode: 'first' | 'next' | 'enumerate' | 'check'): void {
     if (!isCurrentJob(message.jobId, currentJob)) return;
     if (message.kind === 'error') { retire(`Solver error: ${message.error}`); return; }
     if (message.kind === 'candidate') {
-      if (!checkPairs(message.key, evidence.observed, experiment.rounds).every(item=>item.pass)) { retire('INTERNAL ERROR: solver candidate fails direct observed-pair verification.'); return; }
+      const checkStarted = performance.now();
+      const passes = checkPairs(message.key, evidence.observed, experiment.rounds).every(item=>item.pass);
+      directCheckMs += performance.now() - checkStarted;
+      if (!passes) { retire('INTERNAL ERROR: solver candidate fails direct observed-pair verification.'); return; }
       if (mode !== 'check') {
         if (foundKeys.includes(message.key)) { retire('INTERNAL ERROR: duplicate SAT key.'); return; }
         foundKeys.push(message.key); selected = message.key;
-        if (foundKeys.length % 25 === 0) say('solve-status', `At least ${foundKeys.length} keys found; enumeration still running.`);
+        if (foundKeys.length % 25 === 0) say('solve-status', `${partialCount(foundKeys.length)}; enumeration still running.`);
       } else selected = message.key;
       renderVerification();
     } else {
       if (watchdog !== undefined) clearTimeout(watchdog);
       watchdog = undefined; satWorker?.terminate(); satWorker = undefined;
       const elapsed = performance.now() - started;
-      say('timings', `Worker startup + query ${elapsed.toFixed(1)} ms · WASM load ${message.loadMs.toFixed(1)} · clause loading ${message.clauseMs.toFixed(1)} · solving ${message.solveMs.toFixed(1)} · model extraction ${message.modelMs.toFixed(1)} ms.`);
+      say('timings', `CNF encoding ${encodingMs.toFixed(1)} ms before query · worker startup + query ${elapsed.toFixed(1)} ms · WASM load ${message.loadMs.toFixed(1)} · clause loading ${message.clauseMs.toFixed(1)} · solving ${message.solveMs.toFixed(1)} · model extraction ${message.modelMs.toFixed(1)} · direct observed-pair check ${directCheckMs.toFixed(1)} ms.`);
       if (mode === 'check') {
         say('solve-status', message.status === 'UNSAT' ? `Supplied key ${hex(candidate!,4)} cannot fit these observed pairs (UNSAT).` : message.status === 'CAP' ? `Supplied key ${hex(candidate!,4)} is SAT for the observed pairs; direct checks follow below.` : `Candidate check ${message.status}; no success claim.`);
       } else if (message.status === 'UNSAT') {
         satComplete = true;
-        say('solve-status', foundKeys.length ? `UNSAT after blocking: all ${foundKeys.length} consistent master keys found.` : 'INTERNAL ERROR: generated observations were UNSAT.');
-      } else if (message.status === 'UNKNOWN') say('solve-status', `Solver returned UNKNOWN. At least ${foundKeys.length} keys found; enumeration incomplete.`);
-      else say('solve-status', `At least ${foundKeys.length} keys found; enumeration incomplete (limit reached).`);
+        say('solve-status', foundKeys.length ? `UNSAT after blocking: all ${foundKeys.length} consistent master ${keyWord(foundKeys.length)} found.` : 'INTERNAL ERROR: generated observations were UNSAT.');
+      } else if (message.status === 'UNKNOWN') say('solve-status', `Solver returned UNKNOWN. ${partialCount(foundKeys.length)}; enumeration incomplete.`);
+      else say('solve-status', `${partialCount(foundKeys.length)}; enumeration incomplete (limit reached).`);
       renderCandidates(); renderVerification();
     }
   };
@@ -256,11 +284,15 @@ function downloadDimacs(): void {
 }
 
 const median = (samples: number[]): number => [...samples].sort((a,b)=>a-b)[Math.floor(samples.length/2)];
+interface BenchmarkOutcome { status?: string; keys: number[]; loadMs?: number; clauseMs?: number; solveMs?: number; modelMs?: number; elapsedMs?: number }
 async function benchmark(): Promise<void> {
   retire('Benchmarking the selected public query…');
+  byId('benchmark-output').replaceChildren();
   const jobId = currentJob;
   const complete = byId<HTMLSelectElement>('benchmark-task').value === 'complete';
   const satSamples: number[] = [], exSamples: number[] = [];
+  const satStages = { load: [] as number[], clause: [] as number[], solve: [] as number[], model: [] as number[], verify: [] as number[] };
+  const exScan: number[] = [];
   const fixture = evidence.observed.map(p=>`${hex(p.plain)}→${hex(p.cipher)}`).join(', ');
   let backgrounded = document.visibilityState !== 'visible';
   const markBackground = () => { if (document.visibilityState !== 'visible') backgrounded = true; };
@@ -270,7 +302,7 @@ async function benchmark(): Promise<void> {
       if (jobId !== currentJob) throw new Error('Benchmark stopped');
       say('benchmark-status', `${kind === 'sat' ? 'SAT' : 'Exhaustive'} ${trial === 0 ? 'warmup' : `trial ${trial}/5`}…`);
       const started = performance.now();
-      const outcome = await new Promise<{ status: string; keys?: number[] }>((resolve,reject) => {
+      const outcome = await new Promise<BenchmarkOutcome>((resolve,reject) => {
         const worker = kind === 'sat' ? new Worker(new URL('./workers/solve.ts',import.meta.url),{type:'module'}) : new Worker(new URL('./workers/exhaustive.ts',import.meta.url),{type:'module'});
         const candidateKeys: number[] = [];
         const cancel = () => { clearTimeout(timer); worker.terminate(); reject(new Error('Benchmark stopped')); };
@@ -287,8 +319,25 @@ async function benchmark(): Promise<void> {
       });
       if (jobId !== currentJob) throw new Error('Benchmark stopped');
       if (kind === 'sat' && (complete ? outcome.status !== 'UNSAT' : outcome.status !== 'CAP')) throw new Error(`SAT benchmark incomplete: ${outcome.status}`);
-      if (kind === 'sat' && (!outcome.keys?.length || !outcome.keys.every(key => checkPairs(key, evidence.observed, experiment.rounds).every(check => check.pass)))) throw new Error('SAT benchmark model failed direct verification');
-      if (trial) (kind === 'sat' ? satSamples : exSamples).push(performance.now()-started);
+      let verifyMs = 0;
+      if (kind === 'sat') {
+        const verifyStarted = performance.now();
+        const valid = outcome.keys.length > 0 && outcome.keys.every(key => checkPairs(key, evidence.observed, experiment.rounds).every(check => check.pass));
+        verifyMs = performance.now() - verifyStarted;
+        if (!valid) throw new Error('SAT benchmark model failed direct verification');
+      }
+      if (trial) {
+        (kind === 'sat' ? satSamples : exSamples).push(performance.now() - started);
+        if (kind === 'sat') {
+          if ([outcome.loadMs, outcome.clauseMs, outcome.solveMs, outcome.modelMs].some(value => !Number.isFinite(value))) throw new Error('SAT benchmark timing data missing');
+          satStages.load.push(outcome.loadMs!); satStages.clause.push(outcome.clauseMs!);
+          satStages.solve.push(outcome.solveMs!); satStages.model.push(outcome.modelMs!);
+          satStages.verify.push(verifyMs);
+        } else {
+          if (!Number.isFinite(outcome.elapsedMs)) throw new Error('Exhaustive benchmark timing data missing');
+          exScan.push(outcome.elapsedMs!);
+        }
+      }
     }
   };
   try {
@@ -296,8 +345,17 @@ async function benchmark(): Promise<void> {
     const display = (ms:number) => ms < .05 ? 'below timer resolution' : `${ms.toFixed(1)} ms`;
     const spread = (v:number[]) => `${display(Math.min(...v))}–${display(Math.max(...v))}`;
     say('benchmark-status', `Five measured repetitions per method completed for ${complete?'complete-set':'first-match'} task.`);
-    byId('benchmark-output').innerHTML = `<table><thead><tr><th scope="col">Method</th><th scope="col">Median total elapsed</th><th scope="col">Range</th><th scope="col">Samples</th></tr></thead><tbody><tr><td>CaDiCaL WASM</td><td>${display(median(satSamples))}</td><td>${spread(satSamples)}</td><td>5</td></tr><tr><td>Exhaustive worker</td><td>${display(median(exSamples))}</td><td>${spread(exSamples)}</td><td>5</td></tr></tbody></table><p id="benchmark-meta" class="small"></p>`;
-    say('benchmark-meta', `${navigator.userAgent} · CaDiCaL c607304 · ${experiment.rounds} rounds · ${observedCount} pairs · ${fixture}. Total includes worker startup and direct verification of SAT candidates. ${backgrounded ? 'Background tab detected; timings may be distorted.' : 'Tab remained visible during measurement.'}`);
+    const stageRows: [string, number][] = [
+      ['CNF encoding, once before trials', encodingMs],
+      ['SAT: WASM load', median(satStages.load)],
+      ['SAT: clause loading', median(satStages.clause)],
+      ['SAT: solver', median(satStages.solve)],
+      ['SAT: model extraction', median(satStages.model)],
+      ['SAT: direct observed-pair verification', median(satStages.verify)],
+      ['Exhaustive: key scan loop', median(exScan)],
+    ];
+    byId('benchmark-output').innerHTML = `<div class="scroll-region" role="region" aria-label="Benchmark total times" tabindex="0"><table><thead><tr><th scope="col">Method</th><th scope="col">Median total elapsed</th><th scope="col">Range</th><th scope="col">Samples</th></tr></thead><tbody><tr><td>CaDiCaL WASM</td><td>${display(median(satSamples))}</td><td>${spread(satSamples)}</td><td>5</td></tr><tr><td>Exhaustive worker</td><td>${display(median(exSamples))}</td><td>${spread(exSamples)}</td><td>5</td></tr></tbody></table></div><details class="benchmark-breakdown"><summary>See measured stages</summary><div class="scroll-region" role="region" aria-label="Benchmark stage times" tabindex="0"><table><thead><tr><th scope="col">Stage</th><th scope="col">Median</th></tr></thead><tbody>${stageRows.map(([name,ms])=>`<tr><td>${name}</td><td>${display(ms)}</td></tr>`).join('')}</tbody></table></div><p class="small">Encoding happens once when the evidence changes and is excluded from trial totals. Stage medians are measured separately; messaging and scheduling mean they need not add to a total median.</p></details><p id="benchmark-meta" class="small"></p>`;
+    say('benchmark-meta', `${navigator.userAgent} · CaDiCaL c607304 · ${experiment.rounds} rounds · ${observedCount} pairs · ${fixture}. Trial totals include fresh worker startup, the query, and direct observed-pair verification of SAT candidates. ${backgrounded ? 'Background tab detected; timings may be distorted.' : 'Tab remained visible during measurement.'}`);
   } catch (error) { if (jobId === currentJob) say('benchmark-status', `Benchmark incomplete: ${error instanceof Error ? error.message : String(error)}`); }
   finally { document.removeEventListener('visibilitychange', markBackground); }
 }
@@ -319,13 +377,18 @@ byId('solve-next').addEventListener('click',()=>startSat('next'));
 byId('enumerate').addEventListener('click',()=>startSat('enumerate'));
 byId('check-candidate').addEventListener('click',()=>startSat('check'));
 byId('stop').addEventListener('click',()=>{
-  if (satWorker || cancelBenchmark) retire(`Stopped. At least ${foundKeys.length} keys found; enumeration incomplete.`);
-  else say('solve-status', satComplete ? `No query running. All ${foundKeys.length} consistent master keys were already found.` : `No query running. At least ${foundKeys.length} keys found; enumeration incomplete.`);
+  if (satWorker || cancelBenchmark) retire(`Stopped. ${partialCount(foundKeys.length)}; enumeration incomplete.`);
+  else say('solve-status', satComplete ? `No query running. Enumeration complete: ${foundKeys.length} consistent master ${keyWord(foundKeys.length)}.` : `No query running. ${partialCount(foundKeys.length)}; enumeration incomplete.`);
 });
 byId('run-exhaustive').addEventListener('click',runExhaustive);
 byId('candidate-rows').addEventListener('click',event=>{const button=(event.target as HTMLElement).closest<HTMLButtonElement>('button[data-key]');if(button){selected=Number(button.dataset.key);renderVerification();}});
 byId('previous-page').addEventListener('click',()=>{pageIndex--;renderCandidates();});
 byId('next-page').addEventListener('click',()=>{pageIndex++;renderCandidates();});
+byId('benchmark-task').addEventListener('change',()=>{
+  if (cancelBenchmark) retire('Benchmark task changed; prior run stopped.');
+  byId('benchmark-output').replaceChildren();
+  say('benchmark-status', 'Task changed. Run five fresh trials when ready.');
+});
 byId('benchmark').addEventListener('click',()=>{void benchmark();});
 resetQuery('Ready. The formula contains only observed pairs.');
 trace();

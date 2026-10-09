@@ -61,5 +61,6 @@ export async function driveAllStates(page: Page): Promise<void> {
   await page.getByLabel('Task').selectOption('complete');
   await page.getByRole('button', { name: 'Run five-trial benchmark' }).click();
   await expect(page.locator('#benchmark-status')).toContainText('Five measured repetitions', { timeout: 60_000 });
+  await page.getByText('See measured stages').click();
   await scan(page, 'measured comparison');
 }

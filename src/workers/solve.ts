@@ -13,6 +13,8 @@ type Native = {
 };
 
 const send = (message: SatMessage) => self.postMessage(message);
+// [extension] point: a second pinned solver can implement this Query/SatMessage
+// boundary without changing the cipher, encoder, or direct verifier.
 let nativePromise: Promise<Native> | undefined;
 async function loadNative(): Promise<Native> {
   if (!nativePromise) {

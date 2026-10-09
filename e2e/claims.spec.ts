@@ -22,12 +22,42 @@ test('pinned CaDiCaL bridge loads, returns SAT/UNSAT, and accepts incremental cl
   expect(outcome).toEqual({ empty: 10, freeBit: -1, sat: 10, model: 1, unsat: 20 });
 });
 
+test('cipher map and clause inspector explain the actual gate constraints', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.locator('.cipher-flow li')).toHaveCount(5);
+  await expect(page.locator('.cipher-map')).toContainText('Every pair shares the same 16-bit master key');
+  await expect(page.locator('#gate-explanation')).toContainText('These input bits XOR to 0. You proposed output 0.');
+  await expect(page.locator('#gate-verdict')).toContainText('Valid assignment. 4/4 actual clauses satisfied.');
+  await page.locator('#gate-input').fill('1');
+  await expect(page.locator('#gate-explanation')).toContainText('These input bits XOR to 1. You proposed output 0.');
+  await expect(page.locator('#gate-verdict')).toContainText('Invalid assignment.');
+  await page.locator('#gate-output').fill('1');
+  await expect(page.locator('#gate-verdict')).toContainText('Valid assignment.');
+
+  await page.locator('#gate-select').selectOption({ label: 'Pair 1, round 1, low S-box' });
+  await page.locator('#gate-input').fill('0');
+  await page.locator('#gate-output').fill('14');
+  await expect(page.locator('#gate-explanation')).toContainText('The S-box maps input 0 to E. You proposed output E.');
+  await expect(page.locator('#gate-verdict')).toContainText('Valid assignment.');
+  await page.locator('#gate-output').fill('0');
+  await expect(page.locator('#gate-verdict')).toContainText('Invalid assignment.');
+
+  await page.locator('#gate-select').selectOption({ label: 'Pair 1, ciphertext bit 0' });
+  await expect(page.locator('#gate-output-label')).toBeHidden();
+  await expect(page.locator('#gate-explanation')).toContainText('the observed ciphertext requires bit 0');
+  await page.locator('#gate-input').fill('1');
+  await expect(page.locator('#gate-verdict')).toContainText('Invalid assignment.');
+  await page.locator('#gate-select').selectOption({ label: 'Pair 1, round 2, bit 0' });
+  await expect(page.locator('#gate-output-label')).toBeVisible();
+  await expect(page.locator('#gate-output')).toHaveValue('0');
+});
+
 test('real WASM solver fits a public pair and the supplied wrong key fails withheld evidence', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByRole('heading', { name: 'SAT Break' })).toBeVisible();
   await expect(page.locator('#clause-count')).toHaveText('624');
   await page.getByRole('button', { name: 'Find a key', exact: true }).click();
-  await expect(page.locator('#solve-status')).toContainText('At least 1 keys found', { timeout: 45_000 });
+  await expect(page.locator('#solve-status')).toContainText('At least 1 key found', { timeout: 45_000 });
   await page.getByLabel('Check a supplied key (hex)').fill('003F');
   await page.getByRole('button', { name: 'Check supplied candidate with SAT' }).click();
   await expect(page.locator('#solve-status')).toContainText('is SAT', { timeout: 45_000 });
@@ -47,8 +77,8 @@ test('completed SAT sets match exhaustive keys for the fixture prefixes', async 
   for (const [n, expected] of [[1,262],[2,2],[3,1]] as const) {
     await page.getByLabel('Observed pairs').selectOption(String(n));
     await page.getByRole('button', { name: 'Enumerate up to 512 more' }).click();
-    await expect(page.locator('#solve-status')).toContainText(/all \d+ consistent master keys found|Solver error:/, { timeout: 60_000 });
-    expect(await page.locator('#solve-status').textContent()).toContain(`all ${expected} consistent master keys found`);
+    await expect(page.locator('#solve-status')).toContainText(/all \d+ consistent master keys? found|Solver error:/, { timeout: 60_000 });
+    expect(await page.locator('#solve-status').textContent()).toContain(`all ${expected} consistent master ${expected === 1 ? 'key' : 'keys'} found`);
     await page.getByRole('button', { name: 'Count all fitting keys' }).click();
     await expect(page.locator('#set-comparison')).toContainText(`Complete SAT set equals the exhaustive set: ${expected} identical key values.`, { timeout: 60_000 });
   }
@@ -103,7 +133,7 @@ test('one-to-six-round selected eight-pair SAT sets equal exhaustive sets', asyn
     await page.getByLabel('Rounds').selectOption(String(rounds));
     await page.getByLabel('Observed pairs').selectOption('8');
     await page.getByRole('button', { name: 'Enumerate up to 512 more' }).click();
-    await expect(page.locator('#solve-status')).toContainText('consistent master keys found', { timeout: 60_000 });
+    await expect(page.locator('#solve-status')).toContainText(/consistent master keys? found/, { timeout: 60_000 });
     if (rounds === 1) {
       await expect(page.locator('#sat-count')).toHaveText('16');
       const keys = await page.locator('#candidate-rows tr td:first-child').allTextContents();
@@ -122,7 +152,14 @@ test('five-trial complete-set benchmark uses fresh SAT and exhaustive workers', 
   await expect(page.locator('#benchmark-status')).toContainText('Five measured repetitions per method completed for complete-set task.', { timeout: 60_000 });
   await expect(page.locator('#benchmark-output')).toContainText('CaDiCaL WASM');
   await expect(page.locator('#benchmark-output')).toContainText('Exhaustive worker');
-  await expect(page.locator('#benchmark-meta')).toContainText('direct verification of SAT candidates');
+  await expect(page.locator('#benchmark-meta')).toContainText('direct observed-pair verification of SAT candidates');
+  await page.getByText('See measured stages').click();
+  await expect(page.locator('#benchmark-output')).toContainText('CNF encoding, once before trials');
+  await expect(page.locator('#benchmark-output')).toContainText('SAT: model extraction');
+  await expect(page.locator('#benchmark-output')).toContainText('Exhaustive: key scan loop');
+  await page.getByLabel('Observed pairs').selectOption('4');
+  await expect(page.locator('#benchmark-output')).toBeEmpty();
+  await expect(page.locator('#benchmark-status')).toContainText('Run this explicitly when ready.');
 });
 
 test('Stop cancels an active benchmark and a fresh SAT run still works', async ({ page }) => {
@@ -133,5 +170,5 @@ test('Stop cancels an active benchmark and a fresh SAT run still works', async (
   await page.getByRole('button', { name: 'Stop', exact: true }).click();
   await expect(page.locator('#benchmark-status')).toContainText('Benchmark stopped; measurements incomplete.');
   await page.getByRole('button', { name: 'Find a key', exact: true }).click();
-  await expect(page.locator('#solve-status')).toContainText('At least 1 keys found', { timeout: 45_000 });
+  await expect(page.locator('#solve-status')).toContainText('At least 1 key found', { timeout: 45_000 });
 });

@@ -8,11 +8,11 @@ A satisfying assignment fits the observed plaintext/ciphertext pairs. It does no
 
 ## Exhibits
 
-1. **Meet the cipher.** Choose a fixed four-round fixture, a one-round equivalent-key fixture, or a fresh random experiment. Inspect the public pairs and a separate visible-key round trace. Add up to eight distinct observations.
-2. **Inspect the circuit.** Select an actual XOR, S-box, or final key-mixing gate. Change proposed bit values and see which clauses become false. Export the base public formula as DIMACS.
+1. **Meet the cipher.** Follow the short challenge and round-structure map, then choose a fixed four-round fixture, a one-round equivalent-key fixture, or a fresh random experiment. Inspect the public pairs and a separate visible-key round trace. Add up to eight distinct observations.
+2. **Inspect the circuit.** Select an actual XOR, S-box, or final key-mixing gate. Change proposed bit values to see the gate's expected result and which clauses become false. Export the base public formula as DIMACS.
 3. **Solve.** Find one key, find another, check a supplied key, or enumerate in batches of up to 512. The real WASM solver runs in a worker and the UI distinguishes SAT, UNSAT, incomplete, load failure, timeout, and cancellation.
 4. **Verify.** Re-encrypt observed and withheld pairs directly, compare all 256 plaintexts for functional equivalence, reveal original key bits only when requested, and compare a completed SAT key set with an independent exhaustive scan.
-5. **Measure.** Explicitly run five fresh measured repetitions after a warmup for either first match or complete candidate set, with identical public observations for SAT and exhaustive search.
+5. **Measure.** Explicitly run five fresh measured repetitions after a warmup for either first match or complete candidate set, with identical public observations for SAT and exhaustive search. Inspect measured load, clause, solve, model, verification, and scan stages separately from the trial totals.
 
 The four-round fixture uses original key `1234`: `00 → 0C` admits 262 keys, adding `3A → 33` leaves `1234` and `7615`, and adding `5C → C7` leaves `1234`. Supplied candidate `003F` fits the first pair but encrypts `3A` to `26`, which fails the withheld `33`. In the one-round fixture, `1034` and `1234` have different bits but identical outputs for all 256 plaintexts. The visible limitation remains: every encryption check can pass without identifying the original master-key bits.
 
@@ -62,7 +62,7 @@ The source cipher files were copied with attribution from Return Path repository
 
 ## Performance
 
-Measurements are local to the selected browser, fixture, rounds, pair count, and task. The lab displays sample count and spread, including worker startup in total elapsed time. Additional observations shrink the mathematical candidate set for a fixed experiment but do not guarantee faster solve time. No speedup ratio is shown when timing is below resolution.
+Measurements are local to the selected browser, fixture, rounds, pair count, and task. The lab displays sample count and spread, including worker startup and direct SAT candidate verification in trial totals. CNF encoding is timed once when evidence changes and shown separately because it is excluded from trial totals. Stage medians are measured separately and need not add to the total median. Additional observations shrink the mathematical candidate set for a fixed experiment but do not guarantee faster solve time. No speedup ratio is shown when timing is below resolution.
 
 MIT licensed. CaDiCaL retains its [upstream MIT notice](solver/LICENSE.cadical).
 

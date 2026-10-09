@@ -7,6 +7,8 @@ export interface Gate {
   readonly label: string;
   readonly inputs: readonly number[];
   readonly outputs: readonly number[];
+  /** The public ciphertext bit required by a final key-mixing constraint. */
+  readonly expected?: number;
   readonly clauseStart: number;
   readonly clauseCount: number;
 }
@@ -86,7 +88,7 @@ export function encode(pairs: readonly Pair[], rounds: number): Formula {
       const start = clauses.length;
       if (c === 0) clauses.push([-a, b], [a, -b]);
       else clauses.push([a, b], [-a, -b]);
-      gates.push({ kind: 'final', label: `Pair ${pairIndex + 1}, ciphertext bit ${bit}`, inputs: [a, b], outputs: [], clauseStart: start, clauseCount: 2 });
+      gates.push({ kind: 'final', label: `Pair ${pairIndex + 1}, ciphertext bit ${bit}`, inputs: [a, b], outputs: [], expected: c, clauseStart: start, clauseCount: 2 });
     }
   });
   return { variableCount: wires.length - 1, clauses, wires, gates };
