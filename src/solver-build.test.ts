@@ -15,7 +15,7 @@ function fixture() {
   copyFileSync(resolve('solver/build.sh'), join(root, 'solver/build.sh'));
   writeFileSync(join(root, 'solver/wrapper.cpp'), 'wrapper fixture');
   writeFileSync(join(root, 'fixture/LICENSE'), 'license fixture');
-  for (const file of ['current.cpp', 'cadical.cpp', 'mobical.cpp', 'kitten.c']) writeFileSync(join(root, 'fixture/src', file), 'source fixture');
+  for (const file of ['current.cpp', 'zeta.cpp', 'cadical.cpp', 'mobical.cpp', 'kitten.c']) writeFileSync(join(root, 'fixture/src', file), 'source fixture');
   writeFileSync(join(root, 'cache/untracked.cpp'), 'Never compile cache worktree dirt');
   writeFileSync(join(root, '.solver-build/stale.o'), 'Never link old objects');
   writeFileSync(join(root, '.solver-build/libcadical.a'), 'Never reuse old archives');
@@ -70,9 +70,9 @@ test('verification compiles only captured source into fresh objects and never re
   expect(result.stdout).toContain('MATCH public/cadical.mjs');
   expect(result.stdout).toContain('MATCH public/cadical.wasm');
   const compiles = f.commands().filter(x => x.args.includes('-c'));
-  expect(compiles.map(x => basename(x.args[x.args.indexOf('-c') + 1])).sort()).toEqual(['current.cpp', 'kitten.c', 'wrapper.cpp']);
+  expect(compiles.map(x => basename(x.args[x.args.indexOf('-c') + 1])).sort()).toEqual(['current.cpp', 'kitten.c', 'wrapper.cpp', 'zeta.cpp']);
   const archive = f.commands().find(x => x.tool === 'emar' && x.args[0] === 'rcs');
-  expect(archive.args.slice(2).map((x: string) => basename(x))).toEqual(['current.o', 'kitten.o']);
+  expect(archive.args.slice(2).map((x: string) => basename(x))).toEqual(['current.o', 'kitten.o', 'zeta.o']);
   expect(f.commands().some(x => x.args.includes('checkout') || x.args.includes('reset'))).toBe(false);
   expect(compiles.every(x => x.ccache === '1' && !x.flags && x.cache.includes('cadical-clean.'))).toBe(true);
   expect(f.assets()).toEqual(before);
@@ -85,7 +85,7 @@ test('compiler changes cannot reuse objects or the previous compiler cache', () 
   expect(f.run().status).toBe(0);
   expect(f.run({ CONTROL_COMPILER: 'two' }).status).toBe(0);
   const compiles = f.commands().filter(x => x.args.includes('-c'));
-  expect(compiles).toHaveLength(6);
+  expect(compiles).toHaveLength(8);
   expect(new Set(compiles.map(x => x.cache)).size).toBe(2);
 });
 
