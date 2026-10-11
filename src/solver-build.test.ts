@@ -127,3 +127,20 @@ test.each(['CONTROL_CHANGE_WRAPPER', 'CONTROL_CHANGE_ASSET'])('concurrent %s inv
   expect(result.status).not.toBe(0);
   expect(result.stdout).not.toContain('MATCH public/');
 });
+
+test('mismatching rebuilt evidence can be exported without replacing shipped assets', () => {
+  const f = fixture();
+  const before = f.assets();
+  const output = join(f.root, 'retained-output');
+  const result = f.run({ CONTROL_BAD_WASM: '1', SOLVER_BUILD_OUTPUT_DIR: output });
+  expect(result.status).toBe(1);
+  expect(readFileSync(join(output, 'cadical.wasm'), 'utf8')).toBe('bad WASM');
+  expect(f.assets()).toEqual(before);
+});
+
+test('evidence export refuses an existing directory and preserves its files', () => {
+  const f = fixture();
+  const result = f.run({ SOLVER_BUILD_OUTPUT_DIR: join(f.root, 'public') });
+  expect(result.status).not.toBe(0);
+  expect(f.assets()).toEqual(['JS fixture', 'WASM fixture']);
+});

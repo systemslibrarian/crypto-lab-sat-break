@@ -85,6 +85,12 @@ if [ "$verify" -eq 1 ]; then
   for asset in cadical.mjs cadical.wasm; do
     cmp -s "$root/public/$asset" "$scratch/expected/$asset"
   done
+  # Optional evidence export may only create a new directory. Refuse to replace
+  # anything that already exists, including a previous run or shipped public/.
+  if [ -n "${SOLVER_BUILD_OUTPUT_DIR:-}" ]; then
+    mkdir "$SOLVER_BUILD_OUTPUT_DIR"
+    cp "$output_dir/cadical.mjs" "$output_dir/cadical.wasm" "$SOLVER_BUILD_OUTPUT_DIR/"
+  fi
   result=0
   for asset in cadical.mjs cadical.wasm; do
     if cmp -s "$output_dir/$asset" "$scratch/expected/$asset"; then
