@@ -3,7 +3,7 @@
   "capturedAt": "2026-10-11T00:59:00.247496+00:00",
   "workId": "f5076bf0-3183-49e6-8a44-93942c55b773",
   "inspectedDefaultSha": "22cf78e9dd3e1f1d3dcd9901b0dbed3bd1972508",
-  "recipeSha": "8153548e01c1cbf7a1639f14aa20c86d46ca9e7d",
+  "recipeSha": "a736ddf618b030b3c98da92319f2b40280da4abb",
   "originalCompiler": null,
   "historicalCompilerLabel": "6.0.10-git on macOS arm64",
   "upstream": {
@@ -106,15 +106,17 @@
       "rebuiltSha256": "2f070595a1bc8877effc74012a440588bf277c5b1ef0830da192c5d7a5a952cc",
       "byteIdentical": true,
       "shippedSize": 68010,
-      "rebuiltSize": 68010
+      "rebuiltSize": 68010,
+      "earlierRebuiltSha256": "2f070595a1bc8877effc74012a440588bf277c5b1ef0830da192c5d7a5a952cc"
     },
     {
       "path": "public/cadical.wasm",
       "shippedSha256": "459622b6fdf1e2d0eaac2189274a0bd96b9ef362f30724ab6e0c4f461addfff5",
-      "rebuiltSha256": "65e887c5d2e834581e5eebeb062968d97ed2bd8dcb795fcafc116e4625c3437a",
-      "byteIdentical": false,
+      "rebuiltSha256": "459622b6fdf1e2d0eaac2189274a0bd96b9ef362f30724ab6e0c4f461addfff5",
+      "byteIdentical": true,
       "shippedSize": 899941,
-      "rebuiltSize": 899943
+      "rebuiltSize": 899941,
+      "earlierRebuiltSha256": "65e887c5d2e834581e5eebeb062968d97ed2bd8dcb795fcafc116e4625c3437a"
     }
   ],
   "runs": [
@@ -195,8 +197,25 @@
       "seconds": 56.56903600692749,
       "log": "needs-attention-sat-original-inventory-clean-rebuild.log",
       "logSha256": "dbd6dae342cfbb6ee53e7e0cd001ff589d7728d4f0f3b5aaecb865834766c082"
+    },
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "unset EMSDK EM_CONFIG\nexport PATH=/opt/homebrew/Cellar/emscripten/6.0.10/libexec:$PATH\nexport SOLVER_BUILD_OUTPUT_DIR=/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/sat-recorded-archive-order-clean-rebuild-artifacts\nbash solver/build.sh --verify /tmp/sat-break-cadical"
+      ],
+      "sha": "a736ddf618b030b3c98da92319f2b40280da4abb",
+      "finishedAt": "2026-10-11T01:02:27.283978+00:00",
+      "exit": 0,
+      "seconds": 56.21724891662598,
+      "log": "recorded-archive-order-clean-rebuild.log",
+      "logSha256": "be414a1be447685c286b8e7f07eaca23cc10be628bfef71a405e6733c98fcc70"
     }
   ],
-  "state": "javascript-identical-wasm-mismatch",
-  "scope": "Clean pinned-source reproduction attempt; no semantic equivalence, original compiler identity, full cryptographic audit or successful exact WASM reproduction claim."
+  "state": "byte-identical-clean-rebuild",
+  "scope": "Independent clean pinned-source reproduction establishes byte correspondence in the measured environment, not full cryptographic correctness, original compiler identity, constant-time behavior or deployment.",
+  "originalArchiveInventory": {
+    "receipt": "original-archive-inventory.json",
+    "scope": "Observed local cache order, never reused cached objects in reproduction."
+  }
 }
