@@ -54,15 +54,18 @@ done
 
 # Print actual arguments to retain the compilation recipe with verification logs.
 run() { printf '%q ' "$@"; printf '\n'; "$@"; }
+# __FILE__ strings in the shipped WASM identify this original source prefix.
+# Map only captured upstream source paths; never require or modify that directory.
+source_prefix_map="-ffile-prefix-map=$source_dir=/tmp/sat-break-cadical"
 objects=()
 for source in "$source_dir"/src/*.cpp; do
   name=$(basename "$source" .cpp)
   case "$name" in cadical|mobical) continue;; esac
   object="$build_dir/$name.o"
-  run em++ -O2 -DNDEBUG -DNBUILD -DNCLOSEFROM -std=c++17 -I"$source_dir/src" -c "$source" -o "$object"
+  run em++ -O2 -DNDEBUG -DNBUILD -DNCLOSEFROM "$source_prefix_map" -std=c++17 -I"$source_dir/src" -c "$source" -o "$object"
   objects+=("$object")
 done
-run emcc -O2 -DNDEBUG -DNBUILD -DNCLOSEFROM -I"$source_dir/src" -c "$source_dir/src/kitten.c" -o "$build_dir/kitten.o"
+run emcc -O2 -DNDEBUG -DNBUILD -DNCLOSEFROM "$source_prefix_map" -I"$source_dir/src" -c "$source_dir/src/kitten.c" -o "$build_dir/kitten.o"
 objects+=("$build_dir/kitten.o")
 # Preserve the original recipe's lexical archive order, using only objects from
 # this captured build rather than an archive or wildcard from a persistent cache.

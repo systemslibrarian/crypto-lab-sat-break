@@ -24,6 +24,8 @@ The checked-in artifacts produced in this environment have SHA-256 checksums:
 
 The historical `6.0.10-git` label above does not authenticate the original compiler revision. The independently selected official SDK 6.0.10 uses Emscripten `d6c521a7f05449857c76bd99e396895583cf2083`, SDK commit `a2b92777574c2feda07994cd4f1079a3dfc151f8`, and release `666337b525e673e769121856d175f6f52b8ead64`. Keep the historical label, selected environment and actual measured reproduction results distinct. No claim of original compiler identity follows from a version string or matching fingerprints.
 
+The shipped WASM contains `__FILE__` strings `/tmp/sat-break-cadical/src/solver.cpp` and `/tmp/sat-break-cadical/src/external.cpp`. The clean recipe preserves lexical archive order and maps the captured upstream source prefix to `/tmp/sat-break-cadical` with `-ffile-prefix-map`. This records an observable artifact input without requiring that directory, reusing its contents, or inferring the original compiler. Builds before this path mapping remain recorded mismatches rather than being relabelled successful.
+
 Builds with a different Emscripten revision may produce different bytes. `shasum -a 256 public/cadical.mjs public/cadical.wasm` records the output of a new build. The generated `.mjs` is about 66 KiB and `.wasm` about 879 KiB in this build.
 
 `npm test` checks that both documented digests contain exactly 64 hexadecimal characters and match the checked-in asset bytes. Update these checksums when intentionally rebuilding the assets. This gate checks documentation consistency; it does not establish compiler or binary provenance.
