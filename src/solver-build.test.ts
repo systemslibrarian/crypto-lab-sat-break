@@ -72,7 +72,7 @@ test('verification compiles only captured source into fresh objects and never re
   const compiles = f.commands().filter(x => x.args.includes('-c'));
   expect(compiles.map(x => basename(x.args[x.args.indexOf('-c') + 1])).sort()).toEqual(['current.cpp', 'kitten.c', 'wrapper.cpp', 'zeta.cpp']);
   const archive = f.commands().find(x => x.tool === 'emar' && x.args[0] === 'rcs');
-  expect(archive.args.slice(2).map((x: string) => basename(x))).toEqual(['current.o', 'kitten.o', 'wrapper.o', 'zeta.o']);
+  expect(archive.args.slice(2).map((x: string) => basename(x))).toEqual(['current.o', 'zeta.o', 'wrapper.o', 'kitten.o']);
   expect(f.commands().some(x => x.args.includes('checkout') || x.args.includes('reset'))).toBe(false);
   expect(compiles.every(x => x.ccache === '1' && !x.flags && x.cache.includes('cadical-clean.'))).toBe(true);
   expect(f.assets()).toEqual(before);

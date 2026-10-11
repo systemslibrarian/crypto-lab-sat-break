@@ -1,0 +1,127 @@
+{
+  "shipped": {
+    "path": "/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/crypto-lab-sat-provenance-review/public/cadical.wasm",
+    "size": 899941,
+    "sha256": "459622b6fdf1e2d0eaac2189274a0bd96b9ef362f30724ab6e0c4f461addfff5",
+    "sections": [
+      {
+        "id": 1,
+        "size": 344,
+        "sha256": "7b64d97f86b982d9e5cff783d6d69b2a2d3b8cd2236cd6556aad6b8787787bdd"
+      },
+      {
+        "id": 2,
+        "size": 599,
+        "sha256": "4545eef97ef47fd8d9951bdade887d84ecf639e99b03e6b3fbb6c2e476b3a9f0"
+      },
+      {
+        "id": 3,
+        "size": 748,
+        "sha256": "157961ef2a7f98a12449e89013b8ddb0b1c0a56a35ea57bfecfbc3804febea76"
+      },
+      {
+        "id": 4,
+        "size": 7,
+        "sha256": "6c0a4205d79c3c59ed9c2d9e97455f894a2e8ad759d4a97a39922d9c426a9ab7"
+      },
+      {
+        "id": 5,
+        "size": 7,
+        "sha256": "4cb7dad9a9ca46798e745a5b5873cdd6a117ed2b5864c9232a42acf49f7817d4"
+      },
+      {
+        "id": 6,
+        "size": 8,
+        "sha256": "6f9adfcf915a17f31def0a3e252cf2fd8a71a123509f722e243b5f0000252266"
+      },
+      {
+        "id": 7,
+        "size": 248,
+        "sha256": "e0687ee43d7a63aa91b23f65b02ca4dfa7fb1965f605d5520b3cb7f46ee8cb6f"
+      },
+      {
+        "id": 9,
+        "size": 242,
+        "sha256": "38b47685dede1cdf30ac3c67d5c9f7292cd19d253c398695347c33a235ceab93"
+      },
+      {
+        "id": 12,
+        "size": 2,
+        "sha256": "efb7e677deb0b989e16b69189102620a19578eb1817fba87e456a39e1a9558b6"
+      },
+      {
+        "id": 10,
+        "size": 856290,
+        "sha256": "61bb938566b7af53d90969ad42c5597d39a7d92dcbf54863d1fd1a57c526965f"
+      },
+      {
+        "id": 11,
+        "size": 41407,
+        "sha256": "64ed7b71cb2711f566a14ad83c590ece0e24a03b0025d7e1f34d9981366ddfce"
+      }
+    ]
+  },
+  "sdkRebuilt": {
+    "path": "/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/sat-retained-clean-rebuild-artifacts/cadical.wasm",
+    "size": 899943,
+    "sha256": "65e887c5d2e834581e5eebeb062968d97ed2bd8dcb795fcafc116e4625c3437a",
+    "sections": [
+      {
+        "id": 1,
+        "size": 344,
+        "sha256": "b46c2d1f8bae9950a41b8be9ba59c2b96a4a44f9042f496119d2f12eaeb6e2d6"
+      },
+      {
+        "id": 2,
+        "size": 599,
+        "sha256": "4545eef97ef47fd8d9951bdade887d84ecf639e99b03e6b3fbb6c2e476b3a9f0"
+      },
+      {
+        "id": 3,
+        "size": 748,
+        "sha256": "cca06d31ac87e838cbfdbddc1d2494c18b304fac560a47c0f9fd907c9e0fca14"
+      },
+      {
+        "id": 4,
+        "size": 7,
+        "sha256": "6c0a4205d79c3c59ed9c2d9e97455f894a2e8ad759d4a97a39922d9c426a9ab7"
+      },
+      {
+        "id": 5,
+        "size": 7,
+        "sha256": "4cb7dad9a9ca46798e745a5b5873cdd6a117ed2b5864c9232a42acf49f7817d4"
+      },
+      {
+        "id": 6,
+        "size": 8,
+        "sha256": "6f9adfcf915a17f31def0a3e252cf2fd8a71a123509f722e243b5f0000252266"
+      },
+      {
+        "id": 7,
+        "size": 248,
+        "sha256": "e0687ee43d7a63aa91b23f65b02ca4dfa7fb1965f605d5520b3cb7f46ee8cb6f"
+      },
+      {
+        "id": 9,
+        "size": 242,
+        "sha256": "a8479fd5bbf1d8430a94ada16bc124df39b587d16cbed994372acb5c71321765"
+      },
+      {
+        "id": 12,
+        "size": 2,
+        "sha256": "efb7e677deb0b989e16b69189102620a19578eb1817fba87e456a39e1a9558b6"
+      },
+      {
+        "id": 10,
+        "size": 856292,
+        "sha256": "6be7daf4c2de26d8a6bd70908509a39e27d871b6c0eb4c831e3c64f14a0541da"
+      },
+      {
+        "id": 11,
+        "size": 41407,
+        "sha256": "64ed7b71cb2711f566a14ad83c590ece0e24a03b0025d7e1f34d9981366ddfce"
+      }
+    ]
+  },
+  "note": "Section byte comparison is diagnostic only; does not establish semantic equivalence or authentic original compiler identity."
+}

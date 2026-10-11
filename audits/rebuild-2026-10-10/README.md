@@ -1,0 +1,11 @@
+# SAT Break clean rebuild evidence — 2026-10-10
+
+Current inspected main: `22cf78e9dd3e1f1d3dcd9901b0dbed3bd1972508`. Pinned CaDiCaL: `c60730422e758ef1cebe7aeddf2dda31c996bf04`; wrapper bytes remain unchanged. Recipe commits and full actual commands, compiler paths/versions/hashes, source archive/tree identity, times, exit codes and logs are in [report.json](report.json).
+
+The clean rebuilds match the shipped JavaScript SHA-256 `2f070595a1bc8877effc74012a440588bf277c5b1ef0830da192c5d7a5a952cc`. They do **not** reproduce the shipped WASM SHA-256 `459622b6fdf1e2d0eaac2189274a0bd96b9ef362f30724ab6e0c4f461addfff5`. Both official SDK 6.0.10 and installed Homebrew 6.0.10-git, after evidenced source-prefix normalization and original archive inventory/order, produce `65e887c5d2e834581e5eebeb062968d97ed2bd8dcb795fcafc116e4625c3437a`. Every mismatch returns exit 1 and preserves the shipped assets; expected hashes were not replaced. Prior unnormalized/other-order mismatches remain in the logs.
+
+This is an observed source-to-binary reproduction gap, not evidence of a broken cryptographic algorithm. The section comparison shows differences in type, function, element and code sections, so a metadata-only explanation is unsupported. The original compiler’s immutable build identity remains unknown; a matching version label does not authenticate it.
+
+The repair prevents timestamp-cache or stale-archive contamination, captures immutable Git source, uses fresh compiler caches, snapshots recipe/wrapper/expected assets, fails on changed evidence and supports read-only comparison. Offline mock-tool regression tests establish build hygiene and failure handling, not real solver provenance. Application browser checks execute the unchanged shipped WASM, not the mismatching rebuild. Raw C/C++ and WASM scanner coverage limits remain.
+
+Next action: review the exact original wrapper/build inputs and build logs against this pinned source and the recorded compiler identities, then recover or explain the remaining byte differences. Do not change expected hashes to clear the gate. This repair branch awaits review/integration; no merge or deployment occurred. Fleet item `f5076bf0-3183-49e6-8a44-93942c55b773`.

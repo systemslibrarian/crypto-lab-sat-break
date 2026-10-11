@@ -26,6 +26,10 @@ The historical `6.0.10-git` label above does not authenticate the original compi
 
 The shipped WASM contains `__FILE__` strings `/tmp/sat-break-cadical/src/solver.cpp` and `/tmp/sat-break-cadical/src/external.cpp`. The clean recipe preserves lexical archive order and maps the captured upstream source prefix to `/tmp/sat-break-cadical` with `-ffile-prefix-map`. This records an observable artifact input without requiring that directory, reusing its contents, or inferring the original compiler. Builds before this path mapping remain recorded mismatches rather than being relabelled successful.
 
+For diagnostic retention, set `SOLVER_BUILD_OUTPUT_DIR` to a **new** directory before `bash solver/build.sh --verify`. The script copies rebuilt assets there, including mismatching output, and still returns the actual comparison result. It refuses an existing directory and never replaces shipped assets.
+
+[Measured clean-build evidence](../audits/rebuild-2026-10-10/README.md) records JavaScript identity and a remaining WASM mismatch with both SDK and Homebrew environments. Do not interpret the successful application tests or matching JavaScript as full source-to-WASM correspondence.
+
 Builds with a different Emscripten revision may produce different bytes. `shasum -a 256 public/cadical.mjs public/cadical.wasm` records the output of a new build. The generated `.mjs` is about 66 KiB and `.wasm` about 879 KiB in this build.
 
 `npm test` checks that both documented digests contain exactly 64 hexadecimal characters and match the checked-in asset bytes. Update these checksums when intentionally rebuilding the assets. This gate checks documentation consistency; it does not establish compiler or binary provenance.
