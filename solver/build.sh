@@ -67,11 +67,14 @@ for source in "$source_dir"/src/*.cpp; do
 done
 run emcc -O2 -DNDEBUG -DNBUILD -DNCLOSEFROM "$source_prefix_map" -I"$source_dir/src" -c "$source_dir/src/kitten.c" -o "$build_dir/kitten.o"
 objects+=("$build_dir/kitten.o")
+run em++ -O2 -DNDEBUG -DNBUILD -DNCLOSEFROM -std=c++17 -I"$source_dir/src" -c "$scratch/wrapper.cpp" -o "$build_dir/wrapper.o"
+# Retain the original recipe's wrapper archive member as well as its explicit
+# link input; omitting a member can change LLVM's function ordering.
+objects+=("$build_dir/wrapper.o")
 # Preserve the original recipe's lexical archive order, using only objects from
 # this captured build rather than an archive or wildcard from a persistent cache.
 ordered=()
 while IFS= read -r object; do ordered+=("$object"); done < <(printf '%s\n' "${objects[@]}" | LC_ALL=C sort)
-run em++ -O2 -DNDEBUG -DNBUILD -DNCLOSEFROM -std=c++17 -I"$source_dir/src" -c "$scratch/wrapper.cpp" -o "$build_dir/wrapper.o"
 run emar rcs "$build_dir/libcadical.a" "${ordered[@]}"
 run em++ -O2 "$build_dir/wrapper.o" "$build_dir/libcadical.a" \
   -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web,worker \
