@@ -23,6 +23,47 @@ permissions:
   id-token: write
 
 jobs:
+  solver-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install the pinned reproducibility SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk="$RUNNER_TEMP/sat-emsdk"
+          git clone --no-checkout https://github.com/emscripten-core/emsdk.git "$sdk"
+          git -C "$sdk" fetch origin a2b92777574c2feda07994cd4f1079a3dfc151f8
+          git -C "$sdk" checkout --detach a2b92777574c2feda07994cd4f1079a3dfc151f8
+          test "$(git -C "$sdk" rev-parse HEAD)" = a2b92777574c2feda07994cd4f1079a3dfc151f8
+          python3 - "$sdk/emscripten-releases-tags.json" <<'PYTHON'
+          import hashlib, json, pathlib, sys
+          data = pathlib.Path(sys.argv[1]).read_bytes()
+          assert hashlib.sha256(data).hexdigest() == '28ab300d0110f50c2ea6b456ae5218e66ab4d959cd5d56d75a424d2696b73440'
+          assert json.loads(data)['releases']['6.0.10'] == '666337b525e673e769121856d175f6f52b8ead64'
+          PYTHON
+          "$sdk/emsdk" install 6.0.10
+          "$sdk/emsdk" activate 6.0.10
+      - name: Clean pinned-source rebuild matches both shipped assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/sat-emsdk/emsdk_env.sh"
+          export SOLVER_BUILD_OUTPUT_DIR="$RUNNER_TEMP/sat-rebuilt"
+          bash solver/build.sh --verify 2>&1 | tee "$RUNNER_TEMP/sat-provenance.log"
+      - name: Retain actual reproduction evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: cadical-source-reproduction
+          path: |
+            ${{ runner.temp }}/sat-provenance.log
+            ${{ runner.temp }}/sat-rebuilt/
+          if-no-files-found: error
+
   build:
     runs-on: ubuntu-latest
     # GitHub's default is 360 minutes. This job runs in a few minutes; 20 is
@@ -64,7 +105,7 @@ jobs:
           path: dist
 
   deploy:
-    needs: build
+    needs: [build, solver-provenance]
     # NOT `== 'push'`. That also skips workflow_dispatch, which is the one
     # trigger the auto-merge job below depends on: the dispatched run would
     # build, pass the gate, and skip this job, so the site would never update.
@@ -82,7 +123,7 @@ jobs:
     # Every gate job. This is the whole safety argument: the gate decides, not
     # the version number. A major that breaks the lab fails the gate and the
     # pull request stays open for a human.
-    needs: build
+    needs: [build, solver-provenance]
     if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10

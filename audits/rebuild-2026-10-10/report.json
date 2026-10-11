@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-10-11T00:59:00.247496+00:00",
+  "workId": "f5076bf0-3183-49e6-8a44-93942c55b773",
+  "inspectedDefaultSha": "22cf78e9dd3e1f1d3dcd9901b0dbed3bd1972508",
+  "recipeSha": "a736ddf618b030b3c98da92319f2b40280da4abb",
+  "originalCompiler": null,
+  "historicalCompilerLabel": "6.0.10-git on macOS arm64",
+  "upstream": {
+    "repository": "https://github.com/arminbiere/cadical",
+    "commit": "c60730422e758ef1cebe7aeddf2dda31c996bf04",
+    "tree": "9630ba7aaccee77f6fec916e5babd6d1ccedd404",
+    "archiveSha256": "2349b65517b15d91d56000473c1a3dc5dd72b0f2a1ce032b30792236599b7e20"
+  },
+  "wrapperSha256": "921a8443aab21268722306cc5203db0b6bc87dbe5e1264913362b7063f1b5ad5",
+  "actualCompilerEnvironments": {
+    "checkedAt": "2026-10-11T00:55:22.631521+00:00",
+    "system": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "environments": {
+      "homebrew": {
+        "state": "readable",
+        "path": "/opt/homebrew/Cellar/emscripten/6.0.10/libexec/.emscripten",
+        "sha256": "412bf234dd0519a08a738b4128eeae4158c7723a78843bcf610dc75b01348cc3",
+        "selectedTools": {
+          "clang": {
+            "path": "/opt/homebrew/Cellar/emscripten/6.0.10/libexec/llvm/bin/clang-24",
+            "sha256": "ab508c160eed4f663df073f3875fac123eacc047a305d04c2aa3c32933ba2492",
+            "exit": 0,
+            "versionOutput": "clang version 24.0.0git\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/emscripten/6.0.10/libexec/llvm/bin"
+          },
+          "wasm-ld": {
+            "path": "/opt/homebrew/Cellar/emscripten/6.0.10/libexec/llvm/bin/lld",
+            "sha256": "d779baa476cf71cfe8c0988dd799db8fe86e6c42d90e4eac5cd223df3c710ff6",
+            "exit": 0,
+            "versionOutput": "LLD 24.0.0"
+          },
+          "bin/wasm-opt": {
+            "path": "/opt/homebrew/Cellar/emscripten/6.0.10/libexec/binaryen/bin/wasm-opt",
+            "sha256": "6159bff966f2de5b3663b2d562aed485db69c9205abaf0e9dfc7d67d7c2faad0",
+            "exit": 0,
+            "versionOutput": "wasm-opt version 132"
+          },
+          "compilerNode": {
+            "path": "/opt/homebrew/Cellar/node/26.9.0/bin/node",
+            "sha256": "28f0fc07e2b86fc0eae5f9751f34ab14d63bd0132882f89cc4a5b4a44965592e",
+            "exit": 0,
+            "versionOutput": "v26.9.0"
+          }
+        }
+      },
+      "officialSdk": {
+        "state": "readable",
+        "path": "/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/.emscripten",
+        "sha256": "4b97836586e977f7553047617e7cd163142be2909eeae8ac6ede506f0e39adf1",
+        "selectedTools": {
+          "clang": {
+            "path": "/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/upstream/bin/clang-24",
+            "sha256": "f126a277f97554cfc9535c36e028a82486a25ca76a04976760324d8173304098",
+            "exit": 0,
+            "versionOutput": "clang version 24.0.0git (https:/github.com/llvm/llvm-project a06d9165905ce89b5ffef2bbb84c886d60a9b8bf)\nTarget: unknown\nThread model: posix\nInstalledDir: /Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/upstream/bin"
+          },
+          "wasm-ld": {
+            "path": "/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/upstream/bin/lld",
+            "sha256": "0bfe3f4fe5ad0b3734c49ea582a3a2d15fe18e0c8d3bd8efaf1183fbb260d6de",
+            "exit": 0,
+            "versionOutput": "LLD 24.0.0 (/Volumes/Work/s/w/ir/cache/git/chromium.googlesource.com-external-github.com-llvm-llvm--project a06d9165905ce89b5ffef2bbb84c886d60a9b8bf)"
+          },
+          "bin/wasm-opt": {
+            "path": "/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/upstream/bin/wasm-opt",
+            "sha256": "cb225181d96f0eb20b34bb9e5e2dd8e0dc303a98eeb9feb08a30f68e836b6946",
+            "exit": 0,
+            "versionOutput": "wasm-opt version 132 (version_129-419-gfbf2e5aa2)"
+          },
+          "compilerNode": {
+            "path": "/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/node/24.19.0_64bit/bin/node",
+            "sha256": "27db838bb204ef7c21df2931f5656e4c8fb32e6e947f363a402b49714d32b5b1",
+            "exit": 0,
+            "versionOutput": "v24.19.0"
+          }
+        }
+      }
+    },
+    "homebrewReceipt": {
+      "sha256": "6dfdc371dc1e1a50e2c6905686713afd1206b07050bc76e9eafb9cba9899fa3d",
+      "source": {
+        "spec": "stable",
+        "versions": {
+          "stable": "6.0.10",
+          "head": null,
+          "version_scheme": 0,
+          "compatibility_version": null
+        },
+        "path": "/Users/gmcas/Library/Caches/Homebrew/api/internal/packages.arm64_tahoe.jws.json",
+        "tap_git_head": null,
+        "tap": "homebrew/core"
+      },
+      "builtAsBottle": true,
+      "pouredFromBottle": true
+    }
+  },
+  "artifacts": [
+    {
+      "path": "public/cadical.mjs",
+      "shippedSha256": "2f070595a1bc8877effc74012a440588bf277c5b1ef0830da192c5d7a5a952cc",
+      "rebuiltSha256": "2f070595a1bc8877effc74012a440588bf277c5b1ef0830da192c5d7a5a952cc",
+      "byteIdentical": true,
+      "shippedSize": 68010,
+      "rebuiltSize": 68010,
+      "earlierRebuiltSha256": "2f070595a1bc8877effc74012a440588bf277c5b1ef0830da192c5d7a5a952cc"
+    },
+    {
+      "path": "public/cadical.wasm",
+      "shippedSha256": "459622b6fdf1e2d0eaac2189274a0bd96b9ef362f30724ab6e0c4f461addfff5",
+      "rebuiltSha256": "459622b6fdf1e2d0eaac2189274a0bd96b9ef362f30724ab6e0c4f461addfff5",
+      "byteIdentical": true,
+      "shippedSize": 899941,
+      "rebuiltSize": 899941,
+      "earlierRebuiltSha256": "65e887c5d2e834581e5eebeb062968d97ed2bd8dcb795fcafc116e4625c3437a"
+    }
+  ],
+  "runs": [
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "source /Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/emsdk_env.sh >/dev/null 2>&1\nbash solver/build.sh --verify"
+      ],
+      "sha": "4a2dd4251172a45ba4576556820877f8b1cad88a",
+      "finishedAt": "2026-10-11T00:49:59.384152+00:00",
+      "exit": 1,
+      "seconds": 53.71669912338257,
+      "log": "needs-attention-sat-committed-clean-rebuild.log",
+      "logSha256": "7ad5a951f9024239df6f4cf9b4bbb89e69945202a04d50544b2117d483ee42cf"
+    },
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "source /Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/emsdk_env.sh >/dev/null 2>&1\nbash solver/build.sh --verify"
+      ],
+      "sha": "626949ecd7e0742040634b6405e642bc2b640064",
+      "finishedAt": "2026-10-11T00:51:16.113099+00:00",
+      "exit": 1,
+      "seconds": 51.5809760093689,
+      "log": "needs-attention-sat-ordered-clean-rebuild.log",
+      "logSha256": "763e2d56cf25d65918309bafd4849a8b33ae9c0159a2772e211e9e1a224b9cfd"
+    },
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "source /Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/emsdk_env.sh >/dev/null 2>&1\nbash solver/build.sh --verify"
+      ],
+      "sha": "f54e108f9adbe4d1ba3d991f94a06fbc4635f618",
+      "finishedAt": "2026-10-11T00:53:37.841884+00:00",
+      "exit": 1,
+      "seconds": 51.19218826293945,
+      "log": "needs-attention-sat-path-mapped-clean-rebuild.log",
+      "logSha256": "abf565ad0a7a7662d4f097f07ec31be27fb5b4cdfdf5e63d351197a44c467e9a"
+    },
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "source /Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/tc26-official-sdk6-environment/emsdk_env.sh >/dev/null 2>&1\nexport SOLVER_BUILD_OUTPUT_DIR=/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/sat-retained-clean-rebuild-artifacts\nbash solver/build.sh --verify"
+      ],
+      "sha": "faeb3fa0404bd71c3fac999d5548c45a62b6479b",
+      "finishedAt": "2026-10-11T00:55:18.342742+00:00",
+      "exit": 1,
+      "seconds": 52.85504388809204,
+      "log": "needs-attention-sat-retained-clean-rebuild.log",
+      "logSha256": "7f90831405aca1557eac60c3c8e150b5decb0945f12d5a08d1b5f450f9db388b"
+    },
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "unset EMSDK EM_CONFIG\nexport PATH=/opt/homebrew/Cellar/emscripten/6.0.10/libexec:$PATH\nexport SOLVER_BUILD_OUTPUT_DIR=/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/sat-homebrew-clean-rebuild-artifacts\nbash solver/build.sh --verify"
+      ],
+      "sha": "faeb3fa0404bd71c3fac999d5548c45a62b6479b",
+      "finishedAt": "2026-10-11T00:55:50.734360+00:00",
+      "exit": 1,
+      "seconds": 63.20104193687439,
+      "log": "needs-attention-sat-homebrew-clean-rebuild.log",
+      "logSha256": "30462bda254764530c2ff5c7d7bc9362cbcbdea0aae5d57337781d8e9a74d3a1"
+    },
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "unset EMSDK EM_CONFIG\nexport PATH=/opt/homebrew/Cellar/emscripten/6.0.10/libexec:$PATH\nexport SOLVER_BUILD_OUTPUT_DIR=/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/sat-original-inventory-clean-rebuild-artifacts\nbash solver/build.sh --verify"
+      ],
+      "sha": "8153548e01c1cbf7a1639f14aa20c86d46ca9e7d",
+      "finishedAt": "2026-10-11T00:57:09.755533+00:00",
+      "exit": 1,
+      "seconds": 56.56903600692749,
+      "log": "needs-attention-sat-original-inventory-clean-rebuild.log",
+      "logSha256": "dbd6dae342cfbb6ee53e7e0cd001ff589d7728d4f0f3b5aaecb865834766c082"
+    },
+    {
+      "command": [
+        "zsh",
+        "-c",
+        "unset EMSDK EM_CONFIG\nexport PATH=/opt/homebrew/Cellar/emscripten/6.0.10/libexec:$PATH\nexport SOLVER_BUILD_OUTPUT_DIR=/Users/gmcas/repos/.fleet-maintenance-20261009/dots-report-resolution-20261009/sat-recorded-archive-order-clean-rebuild-artifacts\nbash solver/build.sh --verify /tmp/sat-break-cadical"
+      ],
+      "sha": "a736ddf618b030b3c98da92319f2b40280da4abb",
+      "finishedAt": "2026-10-11T01:02:27.283978+00:00",
+      "exit": 0,
+      "seconds": 56.21724891662598,
+      "log": "recorded-archive-order-clean-rebuild.log",
+      "logSha256": "be414a1be447685c286b8e7f07eaca23cc10be628bfef71a405e6733c98fcc70"
+    }
+  ],
+  "state": "byte-identical-clean-rebuild",
+  "scope": "Independent clean pinned-source reproduction establishes byte correspondence in the measured environment, not full cryptographic correctness, original compiler identity, constant-time behavior or deployment.",
+  "originalArchiveInventory": {
+    "receipt": "original-archive-inventory.json",
+    "scope": "Observed local cache order, never reused cached objects in reproduction."
+  }
+}
