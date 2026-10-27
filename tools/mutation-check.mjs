@@ -101,6 +101,36 @@ const mutations = [
     changes: [['return messageJobId === currentJobId;', 'void messageJobId; void currentJobId; return true;']],
     test: unit('src/sat/jobs.test.ts', 'rejects an arriving result'),
   },
+  {
+    name: 'cube oracle v1v2 key term', file: 'src/cube/oracle.ts',
+    changes: [["{ publicMask: 0b0011, secretMask: 0b001, label: 'v₁v₂k₁' }", "{ publicMask: 0b0011, secretMask: 0b100, label: 'v₁v₂k₁' }"]],
+    test: browser('cube preprocessing independently exhausts'),
+  },
+  {
+    name: 'cube face XOR reduction', file: 'src/cube/analysis.ts',
+    changes: [['return { key, outputs, sum: outputs.reduce<number>((sum, bit) => sum ^ bit, 0) as Bit }', 'return { key, outputs, sum: outputs.reduce<number>((sum, bit) => sum | bit, 0) as Bit }']],
+    test: browser('cube preprocessing independently exhausts'),
+  },
+  {
+    name: 'cube superpoly Mobius transform', file: 'src/cube/analysis.ts',
+    changes: [['coefficients[mask] = (coefficients[mask] ^ coefficients[mask ^ (1 << variable)]) as Bit', 'coefficients[mask] = coefficients[mask ^ (1 << variable)]']],
+    test: browser('cube preprocessing independently exhausts'),
+  },
+  {
+    name: 'cube nonlinear degree gate', file: 'src/cube/analysis.ts',
+    changes: [['maxterm: degree === 1', 'maxterm: degree <= 2']],
+    test: browser('cube preprocessing independently exhausts'),
+  },
+  {
+    name: 'cube affine constant moved to rhs', file: 'src/cube/analysis.ts',
+    changes: [['const rhs = (observed ^ constant) as Bit', 'const rhs = observed']],
+    test: browser('cube online recovery freezes'),
+  },
+  {
+    name: 'cube heldout candidate prediction', file: 'src/cube/analysis.ts',
+    changes: [['const predicted = HELDOUT_ROWS.map(row => toyOracle(candidate, row))', 'const predicted = [...observed]']],
+    test: browser('cube online recovery freezes'),
+  },
 ];
 
 const report = ['# Mutation evidence', '', 'Each owner passed before mutation. Each concrete patch built successfully, changed the production bundle, was served from the project subpath, and made its owner fail. The original source was restored after each run.', '', '| Mutation | Mutated asset SHA-256 prefix | Owner failed |', '| --- | --- | --- |'];
@@ -138,4 +168,4 @@ const restored = run('npm', ['run', 'build']);
 if (!restored.ok || assetHash() !== baselineHash) throw new Error('Restored source did not reproduce baseline bundle');
 report.push('', `Baseline: ${baseline.output.match(/Tests\s+\d+ passed \(\d+\)/)?.[0] ?? 'unit suite passed'}; ${browserBaseline.output.match(/\d+ passed \([^\n]+\)/)?.[0] ?? 'browser claims passed'}.`, '');
 writeFileSync(join(root, 'docs/mutation-evidence.md'), report.join('\n'));
-process.stdout.write('All nine mutations killed; baseline bundle restored.\n');
+process.stdout.write(`All ${mutations.length} mutations killed; baseline bundle restored.\n`);

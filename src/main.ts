@@ -1,4 +1,5 @@
 import './style.css';
+import { mountCubePanel } from './cube/panel.ts';
 import { encode, toDimacs, type Formula } from './cnf/encode.ts';
 import { fourRoundExample, oneRoundExample, publicEvidence, randomExperiment, type Experiment } from './experiment.ts';
 import { checkPairs, codebookEqual } from './verify.ts';
@@ -13,11 +14,11 @@ if (!app) throw new Error('Missing app mount');
 app.innerHTML = `
 <main class="shell">
   <header class="cl-hero">
-    <div class="cl-hero-main"><h1 class="cl-hero-title">SAT Break</h1><p class="cl-hero-sub">Toy SPN · Boolean constraints · SAT key search</p>
-    <p class="cl-hero-desc">Turn a small cipher into clauses, ask a real SAT solver for keys, and check what those keys actually explain.</p></div>
+    <div class="cl-hero-main"><h1 class="cl-hero-title">SAT Break</h1><p class="cl-hero-sub">Toy equations · SAT constraints · cube superpolys</p>
+    <p class="cl-hero-desc">Recover toy keys by turning a cipher into clauses or summing public-input cubes, then check what the resulting candidate actually explains.</p></div>
     <aside class="cl-hero-why" aria-label="Why it matters"><span class="cl-hero-why-label">WHY IT MATTERS</span><p class="cl-hero-why-text">A solver can find a key that fits every example you gave it. Whether that key is unique, works on unseen messages, or equals the original key takes separate evidence.</p></aside>
   </header>
-  <nav class="chapter-nav" aria-label="Lab steps"><a href="#experiment">01 Experiment</a><a href="#encoding">02 Encode</a><a href="#solve">03 Solve</a><a href="#evidence">04 Verify</a><a href="#measure">05 Measure</a></nav>
+  <nav class="chapter-nav" aria-label="Lab steps"><a href="#experiment">01 Experiment</a><a href="#encoding">02 Encode</a><a href="#solve">03 Solve</a><a href="#evidence">04 Verify</a><a href="#measure">05 Measure</a><a href="#panel-cube">06 Cube sums</a></nav>
   <section class="intro panel"><h2>What a SAT answer means</h2><p>A <strong>variable</strong> is one Boolean wire. A <strong>literal</strong> is a wire or its negation. A <strong>clause</strong> is an OR of literals; <strong>CNF</strong> is an AND of clauses. <strong>SAT</strong> means an assignment satisfies them all. <strong>UNSAT</strong> means no assignment does.</p><p class="scope">This is a teaching cipher with an 8-bit block and a 16-bit key. Exhaustive search is practical at this size. These results do not establish a practical attack on AES or another modern cipher.</p></section>
   <aside class="challenge panel" aria-labelledby="challenge-title"><span class="step">A SHORT PATH THROUGH THE LAB</span><h2 id="challenge-title">Can one message identify a key?</h2><ol>
     <li><strong>Count:</strong> With the four-round example and one observed pair, run the exhaustive scan. Is the original key the only fit?</li>
@@ -50,6 +51,7 @@ app.innerHTML = `
   <section class="panel limits"><h2>What this does not claim</h2><p>A satisfying assignment fits the observed pairs. It may fail unseen pairs. Passing sampled unseen checks does not prove original-key identity. Even matching all 256 outputs can leave different master-key bits, as the one-round example shows.</p><p>This lab uses ordinary CNF and a real CDCL solver; it does not use native XOR reasoning, attack a modern cipher, or claim SAT always beats exhaustive search.</p><p>Source and build details are in the repository README and <a href="https://github.com/systemslibrarian/crypto-lab-sat-break/blob/main/docs/solver-build.md">solver provenance</a>.</p></section>
   <footer class="scripture-footer"><p>So whether you eat or drink or whatever you do, do it all for the glory of God. — 1 Corinthians 10:31</p></footer>
 </main>`;
+mountCubePanel(document.querySelector<HTMLElement>('.limits')!);
 
 const byId = <T extends HTMLElement = HTMLElement>(id: string): T => {
   const element = document.getElementById(id);

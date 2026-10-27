@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { boot, driveAllStates } from './gate';
+import { boot, driveAllStates, driveCube } from './gate';
 
 test('WCAG 2.1 A/AA across the teaching states at desktop width', async ({ page }) => {
   test.setTimeout(180_000);
@@ -12,4 +12,11 @@ test('WCAG 2.1 A/AA across the teaching states at phone width', async ({ page })
   await page.setViewportSize({ width: 380, height: 800 });
   await boot(page);
   await driveAllStates(page);
+});
+
+test('cube exhibit accessibility at 320px', async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.setViewportSize({ width: 320, height: 800 });
+  await boot(page);
+  await driveCube(page);
 });

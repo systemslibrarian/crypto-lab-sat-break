@@ -13,6 +13,7 @@ export async function boot(page: Page): Promise<void> {
   await page.goto('./');
   await expect(page.getByRole('heading', { name: 'SAT Break', level: 1 })).toBeVisible();
   await expect(page.locator('#clause-count')).toHaveText('624');
+  await expect(page.locator('#panel-cube > .card')).toHaveCount(3);
   expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
   expect(await page.locator('[role="banner"]').count()).toBe(1);
   expect(errors).toEqual([]);
@@ -63,4 +64,26 @@ export async function driveAllStates(page: Page): Promise<void> {
   await expect(page.locator('#benchmark-status')).toContainText('Five measured repetitions', { timeout: 60_000 });
   await page.getByText('See measured stages').click();
   await scan(page, 'measured comparison');
+  await driveCube(page);
+}
+
+export async function driveCube(page: Page): Promise<void> {
+  await page.locator('#cube-preprocess').click()
+  await expect(page.locator('[data-cube="pre-raw"]')).toHaveText('128')
+  await page.getByText('Show all 128 preprocessing outputs', { exact: true }).click()
+  const cubeTables = page.locator('#cube-preprocess-view > details').first().locator('details > summary')
+  await expect(cubeTables).toHaveCount(4)
+  for (let index = 0; index < 4; index++) await cubeTables.nth(index).click()
+  await scan(page, 'all cube preprocessing outputs')
+  await page.getByText('Show monomial cancellation', { exact: true }).click()
+  await scan(page, 'cube monomial cancellation')
+  await page.locator('#cube-online').click()
+  await expect(page.locator('[data-cube="candidate"]')).toHaveText('110')
+  await page.locator('#cube-heldout').click()
+  await expect(page.locator('[data-verdict="HELD-OUT OUTPUTS MATCH"]')).toBeVisible()
+  await page.locator('#cube-compare').click()
+  await page.locator('#cube-flip').click()
+  await expect(page.locator('[data-verdict="HELD-OUT CHECK REJECTED 000"]')).toBeVisible()
+  await page.locator('#cube-limits-card > details > summary').click()
+  await scan(page, 'cube preprocessing, recovery, held-outs, and rejected corruption')
 }
