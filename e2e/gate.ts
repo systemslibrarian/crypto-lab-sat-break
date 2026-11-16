@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 import { auditContrast, formatContrastFailures } from './contrast';
+import { auditControlNames, formatControlNameFailures } from './control-names';
 import { auditNonText, formatNonTextFailures } from './nontext';
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
@@ -26,6 +27,10 @@ export async function scan(page: Page, state: string): Promise<void> {
   expect(axe.incomplete.filter(v=>v.id!=='color-contrast').map(v=>v.id), `${state}: unresolved axe rules`).toEqual([]);
   const contrast = await auditContrast(page);
   expect(formatContrastFailures(contrast), `${state}: text contrast`).toEqual([]);
+  // axe's `label` rule accepts a bare `placeholder` as an accessible name, so a
+  // deleted label can leave this gate green. See `control-names.ts`.
+  const unnamed = formatControlNameFailures(await auditControlNames(page));
+  expect(unnamed, `${state}: form controls named only by placeholder/title`).toEqual([]);
   const nontext = await auditNonText(page);
   expect(formatNonTextFailures(nontext), `${state}: control and graphic contrast`).toEqual([]);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
