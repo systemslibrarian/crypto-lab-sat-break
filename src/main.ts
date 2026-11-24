@@ -67,6 +67,7 @@ const parseHex = (value: string, width: number): number => {
 };
 const weak = getSbox('weak');
 let experiment: Experiment = fourRoundExample();
+let shownTrace: { key: string; plain: string; rounds: number } | undefined;
 let observedCount = 1;
 let evidence = publicEvidence(experiment, observedCount);
 let formula: Formula = encode(evidence.observed, experiment.rounds);
@@ -94,6 +95,7 @@ function retire(reason: string): void {
   if (reason) say('solve-status', reason);
 }
 function resetQuery(reason: string): void {
+  retireChangedTrace();
   retire(reason);
   evidence = publicEvidence(experiment, observedCount);
   const encodeStarted = performance.now();
@@ -267,6 +269,22 @@ function runExhaustive(): void {
   worker.postMessage({ jobId, pairs: evidence.observed, rounds: experiment.rounds, firstOnly: false });
 }
 
+function traceInputs() {
+  return {
+    key: byId<HTMLInputElement>('trace-key').value.trim().toLowerCase(),
+    plain: byId<HTMLInputElement>('trace-plain').value.trim().toLowerCase(),
+    rounds: experiment.rounds,
+  };
+}
+function retireChangedTrace(): void {
+  if (!shownTrace) return;
+  const current = traceInputs();
+  if (current.key === shownTrace.key && current.plain === shownTrace.plain && current.rounds === shownTrace.rounds) return;
+  shownTrace = undefined;
+  byId('trace-output').replaceChildren();
+  say('trace-error', 'The example inputs changed. Choose Show trace to calculate the new stages.');
+}
+
 function trace(): void {
   try {
     const key = parseHex(byId<HTMLInputElement>('trace-key').value,4);
@@ -274,7 +292,12 @@ function trace(): void {
     say('trace-error', 'This visible example is separate from the hidden experiment key.');
     const stages = traceEncryption(plain, generateKey(key), weak, experiment.rounds);
     byId('trace-output').innerHTML = `<table><thead><tr><th scope="col">Stage</th><th scope="col">Byte</th></tr></thead><tbody>${stages.map(stage=>`<tr><td>${stage.label}</td><td>${hex(stage.state)}</td></tr>`).join('')}</tbody></table>`;
-  } catch (error) { say('trace-error', String(error)); }
+    shownTrace = traceInputs();
+  } catch (error) {
+    shownTrace = undefined;
+    byId('trace-output').replaceChildren();
+    say('trace-error', String(error));
+  }
 }
 
 function downloadDimacs(): void {
@@ -368,6 +391,7 @@ byId('pair-count').addEventListener('change',()=>{ const count=Number(byId<HTMLS
 byId('add-pair').addEventListener('click',()=>{if(observedCount<8){observedCount++;resetQuery('The next withheld example is now an observation; a replacement remains withheld.');}});
 byId('reveal').addEventListener('click',()=>{revealed=true;say('revealed-key',`Original master key: ${hex(experiment.hiddenKey,4)}.`);renderVerification();});
 byId('trace-run').addEventListener('click',trace);
+for (const id of ['trace-key', 'trace-plain']) byId(id).addEventListener('input', retireChangedTrace);
 byId('gate-select').addEventListener('change',renderGate);
 byId('gate-input').addEventListener('input',renderGate);
 byId('gate-output').addEventListener('input',renderGate);

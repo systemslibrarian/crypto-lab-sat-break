@@ -185,3 +185,24 @@ test('stopping a benchmark preserves a proven complete SAT enumeration', async (
   await expect(page.locator('#solve-status')).toContainText('SAT enumeration remains complete: 262 consistent master keys.');
   await expect(page.locator('#sat-count')).toHaveText('262');
 });
+
+test('the visible forward trace belongs to the displayed example inputs and rounds', async ({ page }) => {
+  await page.goto('./');
+  await page.locator('details.explorer summary').click();
+  const table = page.locator('#trace-output table');
+  await expect(table).toBeVisible();
+  await page.locator('#trace-key').fill('zz');
+  await expect(table).toHaveCount(0);
+  await page.locator('#trace-run').click();
+  await expect(page.locator('#trace-error')).toContainText('hexadecimal digits');
+  await expect(table).toHaveCount(0);
+  await page.locator('#trace-key').fill('1234');
+  await page.locator('#trace-run').click();
+  await expect(table).toBeVisible();
+  await page.locator('#trace-plain').fill('10');
+  await expect(table).toHaveCount(0);
+  await page.locator('#trace-run').click();
+  await expect(table).toBeVisible();
+  await page.locator('#rounds').selectOption('2');
+  await expect(table).toHaveCount(0);
+});
